@@ -2,5 +2,6 @@
 
 #Coverage of fast tests:
 ```
-npm run coverage -- -g @slow --invert
+DEBUG=info:* npm run coverage
+
 ```

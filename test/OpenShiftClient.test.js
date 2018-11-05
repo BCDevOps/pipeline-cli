@@ -9,7 +9,7 @@ const OpenShiftResourceSelector = require('../lib/OpenShiftResourceSelector');
 
 const PROJECT_TOOLS = 'csnr-devops-lab-tools'
 
-describe('OpenShiftClient', function() {
+describe('OpenShiftClient - @fast', function() {
   this.timeout(80000);
   const oc = new OpenShiftClient({namespace:PROJECT_TOOLS})
 

@@ -21,8 +21,19 @@ describe('OpenShiftClientX', function() {
     // completely restore all fakes created through the sandbox
     sandbox.restore();
   });
+  it('misc - @fast', async function() {
+    var resource = {metadata:{annotations:{test:'123'}}}
 
-  it('startBuild @this', async function() {
+    var resource1 = Object.assign({}, resource)
+    oc.setAnnotation(resource1, 'test2', '456')
+    expect(resource1).toEqual({metadata:{annotations:{test:'123', test2:'456'}}})
+
+    var getAnnotation = oc.getAnnotation(resource1, 'test')
+    expect(getAnnotation).toEqual('123')
+
+    var setLabel1 = oc.setLabel({metadata:{annotations:{test:'123'}}}, 'test')
+  })
+  it('startBuild - @fast', async function() {
     var params={NAME:'my-test-app'}
 
     var stub = sandbox.stub(oc, '_action')
@@ -94,10 +105,22 @@ describe('OpenShiftClientX', function() {
 
     stub.withArgs(
       ["--namespace=openshift","get","imagestream.image.openshift.io/python","--output=json"]
-    ).returns({status:0, stdout:fs.readFileSync(`${__dirname}/resources/oc-607be20fff1241a2cd34534dfcadf0add63db2f9.cache.json`)})
+    ).returns({status:0, stdout:fs.readFileSync(`${__dirname}/resources/oc-607be20fff1241a2cd34534dfcadf0add63db2f9.cache.json`, {encoding:'utf-8'})})
     
     stub.withArgs(
-      ["--namespace=csnr-devops-lab-tools","start-build","csnr-devops-lab-tools/buildconfig.build.openshift.io/my-test-app-core","--wait=true","--output=name"]
+      ["--namespace=openshift","get","ImageStreamTag/python:2.7","--output=jsonpath={.image.metadata.name}"]
+    ).returns({status:0, stdout:fs.readFileSync(`${__dirname}/resources/oc-0c27ba108b45b02184fb3c2d9f17c15e1ebe5eb0.cache.txt`, {encoding:'utf-8'})})
+    
+    stub.withArgs(
+      ["--namespace=csnr-devops-lab-tools","set","env","buildconfig.build.openshift.io/my-test-app-core","--env=_BUILD_HASH=5c797a4d69cd9bebfb03c0fcf8cac94c68648c4b","--overwrite=true"]
+    ).returns({status:0, stdout:'not-used'})
+
+    stub.withArgs(
+      ["--namespace=csnr-devops-lab-tools","set","env","buildconfig.build.openshift.io/my-test-app","--env=_BUILD_HASH=bb6a1a5882cc91915f31c620482bacb8070deb3f","--overwrite=true"]
+    ).returns({status:0, stdout:'not-used'})
+
+    stub.withArgs(
+      ["--namespace=csnr-devops-lab-tools","start-build","buildconfig.build.openshift.io/my-test-app-core","--wait=true","--output=name"]
     ).returns({status:0, stdout:`Build/my-test-app-core-1`})
 
     const build1={
@@ -116,7 +139,7 @@ describe('OpenShiftClientX', function() {
     ).returns({status:0, stdout:JSON.stringify(build1)})
 
     stub.withArgs(
-      ["--namespace=csnr-devops-lab-tools","start-build","csnr-devops-lab-tools/buildconfig.build.openshift.io/my-test-app","--wait=true","--output=name"]
+      ["--namespace=csnr-devops-lab-tools","start-build","buildconfig.build.openshift.io/my-test-app","--wait=true","--output=name"]
     ).returns({status:0, stdout:`Build/my-test-app-1`})
 
     const build2={
@@ -133,6 +156,10 @@ describe('OpenShiftClientX', function() {
     stub.withArgs(
       ["--namespace=csnr-devops-lab-tools","get","Build/my-test-app-1","--output=json"]
     ).returns({status:0, stdout:JSON.stringify(build2)})
+
+    stub.withArgs(
+      ["--namespace=csnr-devops-lab-tools","get","ImageStreamTag/my-test-app-core:latest","--output=jsonpath={.image.metadata.name}"]
+    ).returns({status:0, stdout:fs.readFileSync(`${__dirname}/resources/oc-a1d829dffc04a39da661796a53dc512a6ead6033.cache.json`, {encoding:'utf-8'})})
 
     var applyResult = oc.apply(processResult)
     expect(applyResult).toBeInstanceOf(OpenShiftResourceSelector)

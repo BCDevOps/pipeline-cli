@@ -4,8 +4,10 @@
   "description": "Pipeline Utility",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/**/**.test.js",
-    "coverage": "nyc --reporter=html mocha --reporter mochawesome test/**/**.test.js"
+    "test": "mocha --grep @e2e --invert test/**/**.test.js",
+    "coverage": "nyc --reporter=html mocha --reporter mochawesome --grep @e2e --invert test/**/**.test.js",
+    "fast-test": "mocha --grep @e2e --invert test/**/**.test.js",
+    "e2e": "nyc --reporter=html mocha test/**/**.test.js"
   },
   "repository": {
     "type": "git",
@@ -28,7 +30,6 @@
     "mocha": "^5.2.0",
     "mochawesome": "^3.1.1",
     "nyc": "^13.1.0",
-    "sinon": "^7.1.1",
-    "tmp": "0.0.33"
+    "sinon": "^7.1.1"
   }
 }

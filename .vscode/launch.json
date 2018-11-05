@@ -84,6 +84,23 @@
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Mocha !@slow",
+      "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+      "args": [
+          "--timeout",
+          "999999",
+          "--colors",
+          "-g",
+          "@slow",
+          "--invert",
+          "'${workspaceFolder}/test/**.test.js'"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
     }
   ]
 }

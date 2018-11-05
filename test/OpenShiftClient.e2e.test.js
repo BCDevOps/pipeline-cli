@@ -19,7 +19,7 @@ describe('OpenShiftClient (@slow @e2e)', function() {
     sandbox.restore();
   });
 
-  it('create (@slow @e2e)', function() {
+  it('create - @slow @e2e', function() {
     //return new Promise(()=>{
       var params={NAME:'my-test-app'}
       var fileUrl = oc.toFileUrl(`${__dirname}/resources/bc.template-core.json`)
@@ -50,7 +50,7 @@ describe('OpenShiftClient (@slow @e2e)', function() {
     //})//end promise
   }) //end it
 
-  it('process-only (@slow @e2e)', function() {
+  it('process-only - @slow @e2e', function() {
     var params={NAME:'my-test-app'}
     var fileUrl = oc.toFileUrl(`${__dirname}/resources/bc.template.json`)
     
@@ -73,7 +73,7 @@ describe('OpenShiftClient (@slow @e2e)', function() {
     //sinon.reset()
   })
 
-  it('process-and-apply (@slow @e2e)', function() {
+  it('process-and-apply - @slow @e2e', function() {
     var params={NAME:'my-test-app'}
     if (stubbed){
       var stub = sandbox.stub(oc, '_action')
