@@ -1,3 +1,4 @@
+const Util = require('./lib/util')
 const Pipeline = require('./lib/Pipeline')
 const PipelineStage = require('./lib/PipelineStage')
 const PipelineGate = require('./lib/PipelineGate')
@@ -8,6 +9,7 @@ const OpenShiftClientX = require('./lib/OpenShiftClientX')
 PipelineStage.prototype.gate = PipelineGate.create
 
 module.exports = {
+  Util: Util,
   Pipeline : Pipeline,
   PipelineStage : PipelineStage,
   PipelineGate : PipelineGate,

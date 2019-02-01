@@ -9,3 +9,10 @@ DEBUG=info:* npm run coverage
 ```
 rm -rf node_modules; npm install
 ```
+
+# Debug
+```
+npm link
+
+npm link 
+```
