@@ -26,6 +26,9 @@
     "lodash.isstring": "^4.0.1"
   },
   "devDependencies": {
+    "eslint": "^5.15.1",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.16.0",
     "expect": "^24.1.0",
     "mocha": "^5.2.0",
     "mochawesome": "^3.1.1",
