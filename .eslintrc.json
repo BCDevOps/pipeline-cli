@@ -19,7 +19,7 @@
     "rules": {
       "prettier/prettier": ["error"],
       "strict": 0,
-      "linebreak-style": 0,
-      "quotes": ["error", "single"]
+      "quotes": ["error", "single"],
+      "arrow-parens": ["error", "always"]
     }
 }
