@@ -8,7 +8,7 @@
     "coverage": "nyc --reporter=html mocha --reporter mochawesome --grep @e2e --invert test/**/**.test.js",
     "fast-test": "mocha --grep @e2e --invert test/**/**.test.js",
     "e2e": "nyc --reporter=html mocha test/**/**.test.js",
-    "test:lint": "eslint --env node --ext .js src"
+    "test:lint": "eslint --env node --ext .js lib"
   },
   "repository": {
     "type": "git",
