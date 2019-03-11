@@ -1,6 +1,6 @@
 {
     "env": {
-        "browser": true,
+        "browser": false,
         "commonjs": true,
         "es6": true,
         "mocha": true
@@ -20,6 +20,26 @@
       "prettier/prettier": ["error"],
       "strict": 0,
       "quotes": ["error", "single"],
-      "arrow-parens": ["error", "always"]
+      "arrow-parens": ["error", "always"],
+      "no-underscore-dangle": ["error", {
+        "allow": [
+            "_cwd", "_args",
+            "_options", "_rawAction",
+            "_action", "_actionAsync",
+            "_emptyListModel", "_actionReturningName", "_actionReturningName2",
+            "_setCache", "_getCache",
+            "_startBuild", "_bcCacheEntry",
+            "_names", "_isEmptyStatic", "_identifiers"
+          ]
+        }
+      ],
+      "arrow-body-style": ["error", "always"],
+      "comma-dangle": ["error", {
+        "arrays": "never",
+        "objects": "never",
+        "imports": "never",
+        "exports": "never",
+        "functions": "ignore"
+      }]
     }
 }
