@@ -18,139 +18,175 @@
 
 'use strict';
 
+/* eslint-disable */
+
 const expect = require('expect');
 const sinon = require('sinon');
+
 const sandbox = sinon.createSandbox();
 
 const OpenShiftClient = require('../lib/OpenShiftClient');
 const OpenShiftResourceSelector = require('../lib/OpenShiftResourceSelector');
 
-const PROJECT_TOOLS = 'csnr-devops-lab-tools'
+const PROJECT_TOOLS = 'csnr-devops-lab-tools';
+
+/* eslint-disable func-names,space-before-function-paren,prefer-arrow-callback,arrow-body-style,prettier/prettier,max-len */
 
 describe('OpenShiftClient - @fast', function() {
   this.timeout(80000);
-  const oc = new OpenShiftClient({namespace:PROJECT_TOOLS})
+  const oc = new OpenShiftClient({ namespace: PROJECT_TOOLS });
 
-  afterEach(function () {
+  afterEach(function() {
     // completely restore all fakes created through the sandbox
     sandbox.restore();
   });
 
   it('toFileUrl', function() {
-      var fileUrl = oc.toFileUrl('./examples.bc.json')
-      expect(fileUrl).toMatch(/^file:\/\//)
-      expect(()=>oc.toFileUrl({})).toThrow()
-  }) //end it
+    const fileUrl = oc.toFileUrl('./examples.bc.json');
+    expect(fileUrl).toMatch(/^file:\/\//);
+    expect(() => oc.toFileUrl({})).toThrow();
+  }); // end it
 
   it('toFilePath', function() {
-    expect(oc.toFilePath('http://somewhere/over/here')).toEqual('http://somewhere/over/here')
-    expect(oc.toFilePath('file:///tmp/temp-file.tmp')).toEqual('/tmp/temp-file.tmp')
-  }) //end it
+    expect(oc.toFilePath('http://somewhere/over/here')).toEqual('http://somewhere/over/here');
+    expect(oc.toFilePath('file:///tmp/temp-file.tmp')).toEqual('/tmp/temp-file.tmp');
+  }); // end it
+
   it('namespace', function() {
-    expect(oc.namespace()).toEqual(PROJECT_TOOLS)
-  })
+    expect(oc.namespace()).toEqual(PROJECT_TOOLS);
+  });
 
   it('run', function() {
-    expect(()=>oc.run()).toThrow()
-  })
+    expect(() => oc.run()).toThrow();
+  });
+
   it('exec', function() {
-    expect(()=>oc.exec()).toThrow()
-  })
+    expect(() => oc.exec()).toThrow();
+  });
+
   it('rsh', function() {
-    expect(()=>oc.rsh()).toThrow()
-  })
+    expect(() => oc.rsh()).toThrow();
+  });
+
   it('rsync', function() {
-    expect(()=>oc.rsync()).toThrow()
-  })
+    expect(() => oc.rsync()).toThrow();
+  });
+
   it('tag', function() {
-    expect(()=>oc.tag()).toThrow()
-  })
+    expect(() => oc.tag()).toThrow();
+  });
+
   it('misc', function() {
-    expect(oc.unwrapOpenShiftList({kind:'BuildConfig'})).toEqual([{kind:'BuildConfig'}])
-    expect(oc.unwrapOpenShiftList({kind:'List', items:[{kind:'BuildConfig'}]})).toEqual([{kind:'BuildConfig'}])
-    expect(()=>oc.unwrapOpenShiftList('')).toThrow()
+    expect(oc.unwrapOpenShiftList({ kind: 'BuildConfig' })).toEqual([{ kind: 'BuildConfig' }]);
+    expect(oc.unwrapOpenShiftList({ kind: 'List', items: [{ kind: 'BuildConfig' }] })).toEqual([{ kind: 'BuildConfig' }]);
+    expect(() => oc.unwrapOpenShiftList('')).toThrow();
 
-    expect(oc.wrapOpenShiftList({kind:'BuildConfig'})).toEqual({"apiVersion": "v1", "items": [{"kind": "BuildConfig"}], "kind": "List", "metadata": {}})
-    expect(oc.wrapOpenShiftList([{kind:'BuildConfig'}])).toEqual({"apiVersion": "v1", "items": [{"kind": "BuildConfig"}], "kind": "List", "metadata": {}})
+    expect(oc.wrapOpenShiftList({ kind: 'BuildConfig' })).toEqual({
+      apiVersion: 'v1',
+      items: [{ kind: 'BuildConfig' }],
+      kind: 'List',
+      metadata: {}
+    });
 
-    expect(()=>oc.toNamesList('')).toThrow()
-    expect(oc.toNamesList([{kind:'BuildConfig', metadata:{name:'test'}}])).toEqual(['BuildConfig/test'])
-    expect(oc.toNamesList({kind:'BuildConfig', metadata:{name:'test'}})).toEqual(['BuildConfig/test'])
-    expect(oc.toNamesList({kind:'List', items:[{kind:'BuildConfig', metadata:{name:'test'}}]})).toEqual(['BuildConfig/test'])
-    expect(oc.toNamesList({kind:'List'})).toEqual([])
+    expect(oc.wrapOpenShiftList([{ kind: 'BuildConfig' }])).toEqual({
+      apiVersion: 'v1',
+      items: [{ kind: 'BuildConfig' }],
+      kind: 'List',
+      metadata: {}
+    });
+
+    expect(() => oc.toNamesList('')).toThrow();
+    expect(oc.toNamesList([{ kind: 'BuildConfig', metadata: { name: 'test' } }])).toEqual(['BuildConfig/test']);
+    expect(oc.toNamesList({ kind: 'BuildConfig', metadata: { name: 'test' } })).toEqual(['BuildConfig/test']);
+    expect(oc.toNamesList({ kind: 'List', items: [{ kind: 'BuildConfig', metadata: { name: 'test' } }] })).toEqual(['BuildConfig/test']);
+    expect(oc.toNamesList({ kind: 'List' })).toEqual([]);
 
 
-    var oc2 = new OpenShiftClient({namespace:PROJECT_TOOLS, cwd:'/current/git/top/dir'})
-    expect(oc2.namespace()).toEqual(PROJECT_TOOLS)
-    expect(oc2.cwd()).toEqual('/current/git/top/dir')
-  })
+    const oc2 = new OpenShiftClient({ namespace: PROJECT_TOOLS, cwd: '/current/git/top/dir' });
+    expect(oc2.namespace()).toEqual(PROJECT_TOOLS);
+    expect(oc2.cwd()).toEqual('/current/git/top/dir');
+  });
 
   it('selector', function() {
-    var stub = sandbox.stub(oc, '_action')
-    stub.onCall(0).returns({status:0, stdout:`buildconfig.build.openshift.io/test`})
+    const stub = sandbox.stub(oc, '_action');
+    stub.onCall(0).returns({ status: 0, stdout: 'buildconfig.build.openshift.io/test' });
 
-    var selector=oc.selector('BuildConfig', 'test')
-    expect(selector.names()).toEqual([`buildconfig.build.openshift.io/test`])
-  })
+    const selector = oc.selector('BuildConfig', 'test');
+    expect(selector.names()).toEqual(['buildconfig.build.openshift.io/test']);
+  });
 
   describe('buildCommonArgs', function() {
     it('no namespace (global namespace)', function() {
-      var fileUrl = oc.toFileUrl('./examples.bc.json')
-      //var filePath = oc.toFilePath(fileUrl)
-      expect(oc.buildCommonArgs('create', {filename:fileUrl, param:['NAME=abc']}, {'output':'json'}, {'output':'name'})).toEqual([`--namespace=${oc.globalArgs.namespace}`, 'create', `--filename=${fileUrl}`, '--param=NAME=abc', "--output=name"])
-    })
-    it('override namespace', function() {
-      var fileUrl = oc.toFileUrl('./examples.bc.json')
-      //var filePath = oc.toFilePath(fileUrl)
-      expect(oc.buildCommonArgs('create', {filename:fileUrl}, {output:'json'}, {output:'name',namespace:'override-namespace'})).toEqual([`--namespace=override-namespace`, 'create', `--filename=${fileUrl}`, "--output=name"])
-    })
-    it('verb namespace', function() {
-      var fileUrl = oc.toFileUrl('./examples.bc.json')
-      //var filePath = oc.toFilePath(fileUrl)
-      expect(oc.buildCommonArgs('create', {filename:fileUrl, namespace:'verb-namespace'}, {'output':'json'}, {'output':'name'})).toEqual([`--namespace=verb-namespace`, 'create', `--filename=${fileUrl}`, "--output=name"])
-    })
-    it('user namespace', function() {
-      var fileUrl = oc.toFileUrl('./examples.bc.json')
-      //var filePath = oc.toFilePath(fileUrl)
-      expect(oc.buildCommonArgs('create', {filename:fileUrl}, {'output':'json', namespace:'user-namespace'}, {'output':'name'})).toEqual([`--namespace=user-namespace`, 'create', `--filename=${fileUrl}`, "--output=name"])
-    })
-    it('user + override namespace', function() {
-      var fileUrl = oc.toFileUrl('./examples.bc.json')
-      //var filePath = oc.toFilePath(fileUrl)
-      expect(oc.buildCommonArgs('create', {filename:fileUrl}, {'output':'json', namespace:'user-namespace'}, {'output':'name', namespace:'override-namespace'})).toEqual([`--namespace=override-namespace`, 'create', `--filename=${fileUrl}`, "--output=name"])
-    })
-    it('user + verb namespace', function() {
-      var fileUrl = oc.toFileUrl('./examples.bc.json')
-      //var filePath = oc.toFilePath(fileUrl)
-      expect(oc.buildCommonArgs('create', {filename:fileUrl, namespace:'verb-namespace'}, {'output':'json', namespace:'user-namespace'}, {'output':'name'})).toEqual([`--namespace=verb-namespace`, 'create', `--filename=${fileUrl}`, "--output=name"])
-    })
-    it('verb, user, and override namespaces', function() {
-      var fileUrl = oc.toFileUrl('./examples.bc.json')
-      //var filePath = oc.toFilePath(fileUrl)
-      expect(oc.buildCommonArgs('create', {filename:fileUrl, namespace:'verb-namespace'}, {'output':'json', namespace:'user-namespace'}, {'output':'name', namespace:'override-namespace'})).toEqual([`--namespace=override-namespace`, 'create', `--filename=${fileUrl}`, "--output=name"])
-    })
-  })
-  it('oc-whoami', function() {
-    var proc = oc._action(['whoami'], 'ignored-stdin')
-    expect(proc.status).toEqual(0)
-    expect(()=>oc._action(['who-am-i'])).toThrow()
-  })
-  it('create', function() {
-    //var spy = sandbox.spy(oc, '_action')
+      const fileUrl = oc.toFileUrl('./examples.bc.json');
+      expect(oc.buildCommonArgs('create', { filename: fileUrl, param: ['NAME=abc'] }, { output: 'json' }, { output: 'name' })).toEqual([`--namespace=${oc.globalArgs.namespace}`, 'create', `--filename=${fileUrl}`, '--param=NAME=abc', '--output=name']);
+    });
 
+    it('override namespace', function() {
+      const fileUrl = oc.toFileUrl('./examples.bc.json');
+      // var filePath = oc.toFilePath(fileUrl)
+      expect(oc.buildCommonArgs('create', { filename: fileUrl }, { output: 'json' }, { output: 'name', namespace: 'override-namespace' })).toEqual(['--namespace=override-namespace', 'create', `--filename=${fileUrl}`, '--output=name']);
+    });
+
+    it('verb namespace', function() {
+      const fileUrl = oc.toFileUrl('./examples.bc.json');
+      // var filePath = oc.toFilePath(fileUrl)
+      expect(oc.buildCommonArgs('create', { filename: fileUrl, namespace: 'verb-namespace' }, { output: 'json' }, { output: 'name' })).toEqual(['--namespace=verb-namespace', 'create', `--filename=${fileUrl}`, '--output=name']);
+    });
+
+    it('user namespace', function() {
+      const fileUrl = oc.toFileUrl('./examples.bc.json');
+      // var filePath = oc.toFilePath(fileUrl)
+      expect(oc.buildCommonArgs('create', { filename: fileUrl }, { output: 'json', namespace: 'user-namespace' }, { output: 'name' })).toEqual(['--namespace=user-namespace', 'create', `--filename=${fileUrl}`, '--output=name']);
+    });
+
+    it('user + override namespace', function() {
+      const fileUrl = oc.toFileUrl('./examples.bc.json');
+      // var filePath = oc.toFilePath(fileUrl)
+      expect(oc.buildCommonArgs('create', { filename: fileUrl }, { output: 'json', namespace: 'user-namespace' }, { output: 'name', namespace: 'override-namespace' })).toEqual(['--namespace=override-namespace', 'create', `--filename=${fileUrl}`, '--output=name']);
+    });
+
+    it('user + verb namespace', function() {
+      const fileUrl = oc.toFileUrl('./examples.bc.json');
+      // var filePath = oc.toFilePath(fileUrl)
+      expect(oc.buildCommonArgs('create', { filename: fileUrl, namespace: 'verb-namespace' }, { output: 'json', namespace: 'user-namespace' }, { output: 'name' })).toEqual(['--namespace=verb-namespace', 'create', `--filename=${fileUrl}`, '--output=name']);
+    });
+
+    it('verb, user, and override namespaces', function() {
+      const fileUrl = oc.toFileUrl('./examples.bc.json');
+      // var filePath = oc.toFilePath(fileUrl)
+      expect(oc.buildCommonArgs('create', { filename: fileUrl, namespace: 'verb-namespace' }, { output: 'json', namespace: 'user-namespace' }, { output: 'name', namespace: 'override-namespace' })).toEqual(['--namespace=override-namespace', 'create', `--filename=${fileUrl}`, '--output=name']);
+    });
+  });
+
+  it('oc-whoami', function() {
     var stub = sandbox.stub(oc, '_action')
-    var params={NAME:'my-test-app'}
+    //process
+    stub.onCall(0).returns({status:0, stdout: 'username'})
+    stub.onCall(1).throws(new Error('Error: unknown command'))
+
+    const proc = oc._action(['whoami'], 'ignored-stdin');
+    expect(proc.status).toEqual(0);
+    expect(() => oc._action(['who-am-i'])).toThrow();
+  });
+
+  it('create', function() {
+    // var spy = sandbox.spy(oc, '_action')
+
+    const stub = sandbox.stub(oc, '_action');
+    const params = { NAME: 'my-test-app' };
+
+    const template1Result = { apiVersion: 'v1', kind: 'List', items: [{ kind: 'ImageStream', metadata: { name: params.NAME }, spec: { } }, { kind: 'BuildConfig', metadata: { name: params.NAME } }] };
     
     stub.withArgs(
-      ["--namespace=csnr-devops-lab-tools","process","-f",`${__dirname}/resources/bc.template-core.json`,"--param=NAME=my-test-app","--output=json"]
-    ).returns({status:0, stdout:JSON.stringify({kind:'List', items:[{kind:'ImageStream', metadata:{name:params.NAME}}, {kind:'BuildConfig', metadata:{name:params.NAME}}]})})
+      ['--namespace=csnr-devops-lab-tools', 'process', '-f', `${__dirname}/resources/bc.template-core.json`, '--param=NAME=my-test-app', '--output=json']
+    ).returns({ status: 0, stdout: JSON.stringify(template1Result) });
 
     stub.withArgs(
       ["--namespace=csnr-devops-lab-tools","delete","ImageStream/my-test-app","BuildConfig/my-test-app","--ignore-not-found=true","--output=name"]
     ).returns({status:0, stdout:'ImageStream/my-test-app\nBuildConfig/my-test-app'})
 
     stub.withArgs(
-      ["--namespace=csnr-devops-lab-tools","apply","-f","-","--output=name"], "{\"apiVersion\":\"v1\",\"kind\":\"List\",\"metadata\":{},\"items\":[{\"kind\":\"ImageStream\",\"metadata\":{\"name\":\"my-test-app\"}},{\"kind\":\"BuildConfig\",\"metadata\":{\"name\":\"my-test-app\"}}]}"
+      ["--namespace=csnr-devops-lab-tools","apply","-f","-","--output=name"], JSON.stringify(oc.wrapOpenShiftList(template1Result.items))
     ).returns({status:0, stdout:'imagestream.image.openshift.io/my-test-app-core\nbuildconfig.build.openshift.io/my-test-app-core'})
 
     stub.withArgs(
@@ -179,8 +215,8 @@ describe('OpenShiftClient - @fast', function() {
 
     //For debugging and capturing not stubbed calls
     stub.callsFake(function fakeFn(args, input) {
-      console.log(`${JSON.stringify(args)}, ${JSON.stringify(input)}`)
-      throw new Error('Not Implemented')
+      console.log(`${JSON.stringify(args)}, ${JSON.stringify(input)}`);
+      throw new Error('Not Implemented');
     });
     
     var fileUrl = oc.toFileUrl(`${__dirname}/resources/bc.template-core.json`)
@@ -195,6 +231,8 @@ describe('OpenShiftClient - @fast', function() {
     oc.delete(oc.toNamesList(processResult), {'ignore-not-found':'true'})
 
     expect(processResult).toHaveLength(2)
+    expect(processResult).toEqual(template1Result.items);
+
     var applyResult= oc.apply(processResult);
     expect(applyResult).toBeInstanceOf(OpenShiftResourceSelector)
     expect(applyResult.names().sort()).toEqual([`imagestream.image.openshift.io/${params.NAME}-core`, `buildconfig.build.openshift.io/${params.NAME}-core`].sort())
@@ -233,7 +271,7 @@ describe('OpenShiftClient - @fast', function() {
     var params={NAME:'my-test-app'}
     var stub = sandbox.stub(oc, '_action')
     //process
-    stub.onCall(0).returns({status:0, stdout:JSON.stringify({kind:'List', items:[{kind:'ImageStream', metadata:{name:params.NAME}}, {kind:'BuildConfig', metadata:{name:params.NAME}}]})})
+    stub.onCall(0).returns({status:0, stdout:JSON.stringify({kind:'List', items:[{kind:'ImageStream', metadata:{name:params.NAME}, spec: {} }, {kind:'BuildConfig', metadata:{name:params.NAME}}]})})
     //apply
     stub.onCall(1).returns({status:0, stdout:`imagestream.image.openshift.io/${params.NAME}\nbuildconfig.build.openshift.io/${params.NAME}`})
     //delete
@@ -249,4 +287,4 @@ describe('OpenShiftClient - @fast', function() {
     var deleteResult = applyResult.delete()
     expect(deleteResult.names()).toHaveLength(2)
   })
-}) //end describe
+}); // end describe

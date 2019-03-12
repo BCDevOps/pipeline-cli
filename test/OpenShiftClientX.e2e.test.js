@@ -25,7 +25,7 @@ const OpenShiftResourceSelector = require('../lib/OpenShiftResourceSelector');
 const PROJECT_TOOLS = 'csnr-devops-lab-tools'
 const PROJECT_DEPLOY = 'csnr-devops-lab-deploy'
 
-describe('OpenShiftClientX - @e2e', function() {
+describe.skip('OpenShiftClientX - @e2e', function() {
   this.timeout(999999);
   const oc = new OpenShiftClientX({namespace:PROJECT_TOOLS})
 

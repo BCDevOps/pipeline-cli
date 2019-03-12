@@ -18,6 +18,8 @@
 
 'use strict';
 
+/* eslint-disable */
+
 const expect = require('expect');
 const sinon = require('sinon');
 const sandbox = sinon.createSandbox();
@@ -29,7 +31,7 @@ const PROJECT_TOOLS = 'csnr-devops-lab-tools'
 const PROJECT_DEPLOY = 'csnr-devops-lab-deploy'
 const stubbed = false
 
-describe('OpenShiftClient (@slow @e2e)', function() {
+describe.skip('OpenShiftClient (@slow @e2e)', function() {
   this.timeout(80000);
   const oc = new OpenShiftClient({namespace:PROJECT_TOOLS})
   afterEach(function () {
@@ -37,7 +39,7 @@ describe('OpenShiftClient (@slow @e2e)', function() {
     sandbox.restore();
   });
 
-  it('create - @slow @e2e', function() {
+  it.skip('create - @slow @e2e', function() {
     //return new Promise(()=>{
       var params={NAME:'my-test-app'}
       var fileUrl = oc.toFileUrl(`${__dirname}/resources/bc.template-core.json`)
