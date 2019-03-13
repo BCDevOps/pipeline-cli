@@ -70,7 +70,7 @@ describe.skip('OpenShiftClient (@slow @e2e)', function() {
     //})//end promise
   }) //end it
 
-  it('process-only - @slow @e2e', function() {
+  it.skip('process-only - @slow @e2e', function() {
     var params={NAME:'my-test-app'}
     var fileUrl = oc.toFileUrl(`${__dirname}/resources/bc.template.json`)
     
@@ -93,7 +93,7 @@ describe.skip('OpenShiftClient (@slow @e2e)', function() {
     //sinon.reset()
   })
 
-  it('process-and-apply - @slow @e2e', function() {
+  it.skip('process-and-apply - @slow @e2e', function() {
     var params={NAME:'my-test-app'}
     if (stubbed){
       var stub = sandbox.stub(oc, '_action')

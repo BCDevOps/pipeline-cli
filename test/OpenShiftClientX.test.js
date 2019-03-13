@@ -18,6 +18,7 @@
 
 'use strict';
 
+const { EventEmitter } = require('events');
 const expect = require('expect');
 const sinon = require('sinon');
 const fs = require('fs');
@@ -28,11 +29,34 @@ const OpenShiftClientX = require('../lib/OpenShiftClientX');
 const OpenShiftResourceSelector = require('../lib/OpenShiftResourceSelector');
 
 const useCase0BuildTemplate = require('./resources/bc.template.json');
+const useCase0DeployTemplate = require('./resources/dc.template.json');
 
 const sandbox = sinon.createSandbox();
 
 const PROJECT_TOOLS = 'csnr-devops-lab-tools';
 const BASEDIR = path.resolve(__dirname, '..');
+
+const process = (item, template, parameters) => {
+  Object.keys(item).forEach((key) => {
+    let value = item[key];
+    if (util.isString(value)) {
+      value = value.replace('', '');
+      template.parameters.forEach((param) => {
+        const regex = new RegExp(`\\$\{${param.name}}`, 'gm');
+        value = value.replace(regex, parameters[param.name] || param.value || '');
+      });
+      // eslint-disable-next-line no-param-reassign
+      item[key] = value;
+    } else if (util.isArray(value)) {
+      value.forEach((subItem) => {
+        process(subItem, template, parameters);
+      });
+    } else if (util.isPlainObject(value)) {
+      process(value, template, parameters);
+    }
+  });
+  return item;
+};
 
 // eslint-disable-next-line func-names,space-before-function-paren
 describe('OpenShiftClientX', function() {
@@ -205,7 +229,7 @@ describe('OpenShiftClientX', function() {
   }); // end it
 
   // eslint-disable-next-line func-names,space-before-function-paren,prefer-arrow-callback
-  it('build - @this', async function() {
+  it('build', async function() {
     const params = { NAME: 'my-test-app' };
     const stubAction = sandbox.stub(oc, '_action');
     const stubExecSync = sandbox.stub(util, 'execSync');
@@ -222,28 +246,6 @@ describe('OpenShiftClientX', function() {
 
     const objects = [];
     const filePath = `${__dirname}/resources/bc.template.json`;
-
-    const process = (item, template, parameters) => {
-      Object.keys(item).forEach((key) => {
-        let value = item[key];
-        if (util.isString(value)) {
-          value = value.replace('', '');
-          template.parameters.forEach((param) => {
-            const regex = new RegExp(`\\$\{${param.name}}`, 'gm');
-            value = value.replace(regex, parameters[param.name] || param.value || '');
-          });
-          // eslint-disable-next-line no-param-reassign
-          item[key] = value;
-        } else if (util.isArray(value)) {
-          value.forEach((subItem) => {
-            process(subItem, template, parameters);
-          });
-        } else if (util.isPlainObject(value)) {
-          process(value, template, parameters);
-        }
-      });
-      return item;
-    };
 
     const processTemplate = (template, parameters) => {
       const processed = process(template, template, parameters);
@@ -301,5 +303,147 @@ describe('OpenShiftClientX', function() {
     ).returns({ status: 0, stdout: 'abc\n123' }); // eslint-disable-line prettier/prettier,max-len
 
     oc.applyAndBuild(objects);
+  });
+
+  // eslint-disable-next-line func-names,space-before-function-paren,prefer-arrow-callback
+  it('deploy - @this', async function() {
+    const params = { NAME: 'my-test-app' };
+    const stubAction = sandbox.stub(oc, '_action');
+    const stubExecSync = sandbox.stub(util, 'execSync');
+    const stubRawAction = sandbox.stub(oc, '_rawAction');
+
+    // eslint-disable-next-line func-names,space-before-function-paren,prefer-arrow-callback
+    stubAction.callsFake(function fakeFn(...args) {
+      throw new Error(`Not Implemented: ._action(${JSON.stringify(args)})`);
+    });
+
+    // eslint-disable-next-line func-names,space-before-function-paren,prefer-arrow-callback
+    stubRawAction.callsFake(function fakeFn(...args) {
+      throw new Error(`Not Implemented: ._rawAction(${JSON.stringify(args)})`);
+    });
+
+    // eslint-disable-next-line func-names,space-before-function-paren,prefer-arrow-callback
+    stubExecSync.callsFake(function fakeFn(...args) {
+      throw new Error(`Not Implemented: ${JSON.stringify(args)}`);
+    });
+
+    const objects = [];
+    const filePath = `${__dirname}/resources/dc.template.json`;
+
+    const processTemplate = (template, parameters) => {
+      const processed = process(template, template, parameters);
+      return oc.wrapOpenShiftList(processed.objects);
+    };
+
+    const processedTemplate = processTemplate(useCase0DeployTemplate, params);
+
+    // eslint-disable-next-line prettier/prettier
+    stubAction.withArgs(
+      ['--namespace=csnr-devops-lab-tools', 'process', '-f', `${BASEDIR}/test/resources/dc.template.json`, '--param=NAME=my-test-app', '--output=json'] // eslint-disable-line prettier/prettier,max-len
+    ).returns({ status: 0, stdout: JSON.stringify(processedTemplate) }); // eslint-disable-line prettier/prettier,max-len
+
+    objects.push(...oc.processDeploymentTemplate(oc.toFileUrl(filePath), { param: params }));
+    expect(objects).toHaveLength(3);
+    const phase = { name: params.NAME, changeId: 0, instance: `${params.NAME}-0` };
+    oc.applyRecommendedLabels(objects, phase.name, 'dev', phase.changeId, phase.instance);
+    const recommendedLabels = {};
+    oc.copyRecommendedLabels(objects[0].metadata.labels, recommendedLabels);
+    expect(recommendedLabels).toEqual({
+      app: 'my-test-app-0',
+      'app-name': 'my-test-app',
+      'env-id': 0,
+      'env-name': 'dev',
+      'github-owner': 'bcdevops',
+      'github-repo': 'pipeline-cli'
+    });
+    // eslint-disable-next-line prettier/prettier
+    stubAction.withArgs(
+      ['--namespace=csnr-devops-lab-tools', 'apply', '-f', '-', '--output=name'], JSON.stringify(oc.wrapOpenShiftList(objects)) // eslint-disable-line prettier/prettier,max-len
+    ).returns({ status: 0, stdout: 'abc\n123' }); // eslint-disable-line prettier/prettier,max-len
+
+    // eslint-disable-next-line prettier/prettier
+    stubAction.withArgs(
+      ['--namespace=csnr-devops-lab-tools', 'get', 'ImageStreamTag/abc:123', '--output=json', '--ignore-not-found=true'] // eslint-disable-line prettier/prettier,max-len
+    ).returns({ status: 0, stdout: '{"kind": "ImageStreamTag", "metadata": { "name": "abc:123" }, "image": { "metadata": { "name": "some-gui" } } }' }); // eslint-disable-line prettier/prettier,max-len
+
+    // eslint-disable-next-line prettier/prettier
+    stubAction.withArgs(
+      ['--namespace=csnr-devops-lab-tools', 'get', 'dc', '--selector=app=my-test-app-0', '--output=jsonpath={range .items[*]}{.metadata.name}{"\\t"}{.spec.replicas}{"\\t"}{.status.latestVersion}{"\\n"}{end}'] // eslint-disable-line prettier/prettier,max-len
+    ) // eslint-disable-line prettier/prettier,max-len,indent
+    .onFirstCall().returns({ status: 0, stdout: 'my-test-app-0\t1\t1' }) // eslint-disable-line prettier/prettier,max-len,indent
+    .returns({ status: 0, stdout: 'my-test-app-0\t1\t2' }); // eslint-disable-line prettier/prettier,max-len,indent,newline-per-chained-call
+
+    // eslint-disable-next-line prettier/prettier
+    stubAction.withArgs(
+      ['--namespace=csnr-devops-lab-tools', 'get', 'Secret/template.my-test-app', '--output=json'] // eslint-disable-line prettier/prettier,max-len
+    ).returns({ status: 0, stdout: JSON.stringify({ metadata: {}, data: { username: 'username', password: 'password' } }) }); // eslint-disable-line prettier/prettier,max-len
+
+    // eslint-disable-next-line prettier/prettier
+    stubAction.withArgs(
+      ['--namespace=csnr-devops-lab-tools', 'get', 'ConfigMap/template.my-test-app', '--output=json'] // eslint-disable-line prettier/prettier,max-len
+    ).returns({ status: 0, stdout: JSON.stringify({ metadata: {}, data: { config1: 'username', config2: 'password' } }) }); // eslint-disable-line prettier/prettier,max-len
+
+    // oc.createIfMissing(objects);
+    oc.waitForImageStreamTag('abc:123');
+
+    // eslint-disable-next-line prettier/prettier
+    stubAction.withArgs(
+      ['--namespace=csnr-devops-lab-tools', 'get', 'imagestream.image.openshift.io/my-test-app', '--output=jsonpath={.status.dockerImageRepository}'] // eslint-disable-line prettier/prettier,max-len
+    ).returns({ status: 0, stdout: 'docker-registry.default.svc:5000/csnr-devops-lab-tools/my-test-app' }); // eslint-disable-line prettier/prettier,max-len
+
+    // eslint-disable-next-line prettier/prettier
+    stubAction.withArgs(
+      ['--namespace=csnr-devops-lab-tools', 'get', 'ImageStreamTag/my-test-app:build-1.0-0', '--output=jsonpath={.image.metadata.name}'] // eslint-disable-line prettier/prettier,max-len
+    ).returns({ status: 0, stdout: 'my-test-app@1786a7f1-66a6-47a6-8ec4-be14a7a8ee02' }); // eslint-disable-line prettier/prettier,max-len
+
+    // eslint-disable-next-line prettier/prettier
+    stubAction.withArgs(
+      ['--namespace=csnr-devops-lab-tools', 'delete', 'ImageStreamTag/my-test-app:temp1-v1.0', 'ImageStreamTag/my-test-app:temp2-v1.0', '--ignore-not-found=true', '--wait=true', '--output=name'] // eslint-disable-line prettier/prettier,max-len
+    ).returns({ status: 0, stdout: 'my-test-app:temp1-v1.0' }); // eslint-disable-line prettier/prettier,max-len
+
+    // eslint-disable-next-line prettier/prettier
+    stubAction.withArgs(
+      ['--namespace=csnr-devops-lab-tools', 'get', 'ImageStreamTag/my-test-app:v1.0', '--output=json', '--ignore-not-found=true'] // eslint-disable-line prettier/prettier,max-len
+    ).returns({ status: 0, stdout: JSON.stringify({ kind: 'ImageStreamTag', metadata: { name: 'my-test-app:v1.0' }, image: { metadata: { name: 'my-test-app@1786a7f1-66a6-47a6-8ec4-be14a7a8ee02' } } }) }); // eslint-disable-line prettier/prettier,max-len
+
+    oc.importImageStreams(objects, 'v1.0', 'csnr-devops-lab-tools', 'build-1.0-0');
+    oc.fetchSecretsAndConfigMaps(objects);
+
+    // eslint-disable-next-line prettier/prettier
+    stubAction.withArgs(
+      ['--namespace=csnr-devops-lab-tools', 'apply', '-f', '-', '--output=name'], JSON.stringify(oc.wrapOpenShiftList(objects)) // eslint-disable-line prettier/prettier,max-len
+    ).returns({ status: 0, stdout: '' }); // eslint-disable-line prettier/prettier,max-len
+
+    const stubActionAsync = sandbox.stub(oc, '_actionAsync');
+    // eslint-disable-next-line func-names,space-before-function-paren,prefer-arrow-callback
+    stubActionAsync.callsFake(function fakeFn(...args) {
+      throw new Error(`Not Implemented: ${JSON.stringify(args)}`);
+    });
+
+    const createProc = () => {
+      const proc = new EventEmitter();
+      proc.stdout = new EventEmitter();
+      proc.stderr = new EventEmitter();
+      proc.kill = () => {};
+      setTimeout(() => {
+        proc.stdout.emit('data', 'my-test-app-0\t1\t1\t1\t4\n');
+        proc.emit('exit', null, 0);
+      }, 2000);
+      return proc;
+    };
+
+    // eslint-disable-next-line max-len
+    // eslint-disable-next-line func-names, space-before-function-paren, prefer-arrow-callback, prettier/prettier, max-len
+    stubActionAsync.withArgs(
+      ["--namespace=csnr-devops-lab-tools", "get", "dc", "--selector=app=my-test-app-0", "--watch=true", "--output=jsonpath={.metadata.name}{\"\\t\"}{.status.replicas}{\"\\t\"}{.status.availableReplicas}{\"\\t\"}{.status.unavailableReplicas}{\"\\t\"}{.status.latestVersion}{\"\\n\"}"] // eslint-disable-line prettier/prettier,quotes,max-len
+    ).returns(createProc()); // eslint-disable-line prettier/prettier,max-len
+
+    // eslint-disable-next-line max-len
+    // eslint-disable-next-line func-names, space-before-function-paren, prefer-arrow-callback, prettier/prettier, max-len
+    stubAction.withArgs(
+      ["--namespace=csnr-devops-lab-tools", "get", "dc", "--selector=app=my-test-app-0", "--no-headers=true", "--output=custom-columns=NAME:.metadata.name,DESIRED:.spec.replicas,CURRENT:.status.replicas,AVAILABLE:.status.availableReplicas,UNAVAILABLE:.status.unavailableReplicas,VERSION:.status.latestVersion"] // eslint-disable-line prettier/prettier,quotes,max-len
+    ).returns({ status: 0, stdout: 'my-test-app-0\t1\t1\t1\t4\n' }); // eslint-disable-line prettier/prettier,max-len
+
+    await oc.applyAndDeploy(objects, recommendedLabels.app);
   });
 }); // end describe
