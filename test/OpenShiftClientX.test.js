@@ -86,146 +86,303 @@ describe('OpenShiftClientX', function() {
 
   // eslint-disable-next-line func-names,space-before-function-paren,prefer-arrow-callback
   it('startBuild - @fast', async function() {
-    var params={NAME:'my-test-app'}
+    const params = { NAME: 'my-test-app' };
 
-    var stub_action = sandbox.stub(oc, '_action')
-    var stubExecSync = sandbox.stub(util, 'execSync')
+    const stubAction = sandbox.stub(oc, '_action');
+    const stubExecSync = sandbox.stub(util, 'execSync');
 
     // eslint-disable-next-line func-names,space-before-function-paren,prefer-arrow-callback
     stubExecSync.callsFake(function fakeFn(...args) {
       throw new Error(`Not Implemented: ${JSON.stringify(args)}`);
     });
 
-    var filePath = `${__dirname}/resources/bc.template.json`
-    var processResult= lib.process(filePath, {param:params});
+    const filePath = `${__dirname}/resources/bc.template.json`;
+    const processResult = lib.process(filePath, { param: params });
 
-    stub_action.withArgs(
-      ['--namespace=csnr-devops-lab-tools', 'process', '-f', `${__dirname}/resources/bc.template-core.json`, '--param=NAME=my-test-app', '--output=json']
-    ).returns({status:0, stdout:JSON.stringify({kind:'List', items:[{kind:'ImageStream', metadata:{name:params.NAME}}, {kind:'BuildConfig', metadata:{name:params.NAME}}]})})
+    stubAction
+      .withArgs([
+        '--namespace=csnr-devops-lab-tools',
+        'process',
+        '-f',
+        `${__dirname}/resources/bc.template-core.json`,
+        '--param=NAME=my-test-app',
+        '--output=json'
+      ])
+      .returns({
+        status: 0,
+        stdout: JSON.stringify({
+          kind: 'List',
+          items: [
+            { kind: 'ImageStream', metadata: { name: params.NAME } },
+            { kind: 'BuildConfig', metadata: { name: params.NAME } }
+          ]
+        })
+      });
 
-    stub_action.callsFake(function fakeFn(...args) {
-      throw new Error(`Not Implemented: ${JSON.stringify(args)}`)
+    stubAction.callsFake((...args) => {
+      throw new Error(`Not Implemented: ${JSON.stringify(args)}`);
     });
 
-    expect(processResult).toBeInstanceOf(Array)
-    expect(processResult).toHaveLength(4)
-    expect(oc.toNamesList(processResult)).toEqual([`imagestream.image.openshift.io/${params.NAME}`, `imagestream.image.openshift.io/${params.NAME}-core`, `buildconfig.build.openshift.io/${params.NAME}-core`, `buildconfig.build.openshift.io/${params.NAME}`])
+    expect(processResult).toBeInstanceOf(Array);
+    expect(processResult).toHaveLength(4);
+    expect(oc.toNamesList(processResult)).toEqual([
+      `imagestream.image.openshift.io/${params.NAME}`,
+      `imagestream.image.openshift.io/${params.NAME}-core`,
+      `buildconfig.build.openshift.io/${params.NAME}-core`,
+      `buildconfig.build.openshift.io/${params.NAME}`
+    ]);
 
-    oc.applyBestPractices(oc.wrapOpenShiftList(processResult))
-    //TODO: needs to assert/verify result
+    oc.applyBestPractices(oc.wrapOpenShiftList(processResult));
+    // TODO: needs to assert/verify result
 
-    oc.applyRecommendedLabels(processResult, params.NAME, 'dev', '1')
-    //TODO: needs to assert/verify result
+    oc.applyRecommendedLabels(processResult, params.NAME, 'dev', '1');
+    // TODO: needs to assert/verify result
 
-    oc.fetchSecretsAndConfigMaps(processResult)
-    //TODO: needs to assert/verify result
+    oc.fetchSecretsAndConfigMaps(processResult);
+    // TODO: needs to assert/verify result
 
-    
-    stub_action.withArgs(
-      ['--namespace=csnr-devops-lab-tools', 'apply', '-f', '-', '--output=name'], JSON.stringify(oc.wrapOpenShiftList(processResult))
-    ).returns({status:0, stdout:`imagestream.image.openshift.io/${params.NAME}-core\nimagestream.image.openshift.io/${params.NAME}\nbuildconfig.build.openshift.io/${params.NAME}-core\nbuildconfig.build.openshift.io/${params.NAME}`})
+    stubAction
+      .withArgs(
+        ['--namespace=csnr-devops-lab-tools', 'apply', '-f', '-', '--output=name'],
+        JSON.stringify(oc.wrapOpenShiftList(processResult))
+      )
+      .returns({
+        status: 0,
+        stdout: `imagestream.image.openshift.io/${
+          params.NAME
+        }-core\nimagestream.image.openshift.io/${params.NAME}\nbuildconfig.build.openshift.io/${
+          params.NAME
+        }-core\nbuildconfig.build.openshift.io/${params.NAME}`
+      });
 
+    const filterByFullName = (fullNames) => {
+      const subset = processResult.filter((item) => {
+        const fullName = util.fullName(item);
+        return fullNames.includes(fullName);
+      });
+      return subset;
+    };
+    const subset1 = filterByFullName([
+      'csnr-devops-lab-tools/buildconfig.build.openshift.io/my-test-app-core',
+      'csnr-devops-lab-tools/buildconfig.build.openshift.io/my-test-app'
+    ]);
 
-    var filterByFullName= (fullNames)=>{
-      var subset = processResult.filter((item)=>{
-        var fullName = util.fullName(item)
-        return fullNames.includes(fullName)
-      })
-      return subset
-    }
-    var subset1 = filterByFullName(['csnr-devops-lab-tools/buildconfig.build.openshift.io/my-test-app-core', 'csnr-devops-lab-tools/buildconfig.build.openshift.io/my-test-app'])
-    
+    stubAction
+      .withArgs([
+        '--namespace=csnr-devops-lab-tools',
+        'get',
+        'buildconfig.build.openshift.io/my-test-app-core',
+        'buildconfig.build.openshift.io/my-test-app',
+        '--output=json'
+      ])
+      .returns({ status: 0, stdout: JSON.stringify(oc.wrapOpenShiftList(subset1)) });
 
-    stub_action.withArgs(
-      ['--namespace=csnr-devops-lab-tools', 'get', 'buildconfig.build.openshift.io/my-test-app-core', 'buildconfig.build.openshift.io/my-test-app', '--output=json']
-    ).returns({status:0, stdout:JSON.stringify(oc.wrapOpenShiftList(subset1))})
+    stubAction
+      .withArgs([
+        '--namespace=csnr-devops-lab-tools',
+        'get',
+        'imagestream.image.openshift.io/my-test-app-core',
+        '--output=json'
+      ])
+      .returns({
+        status: 0,
+        stdout: JSON.stringify(
+          oc.wrapOpenShiftList(
+            filterByFullName([
+              'csnr-devops-lab-tools/imagestream.image.openshift.io/my-test-app-core'
+            ])
+          )
+        )
+      });
 
-    stub_action.withArgs(
-      ['--namespace=csnr-devops-lab-tools', 'get', 'imagestream.image.openshift.io/my-test-app-core', '--output=json']
-    ).returns({status:0, stdout:JSON.stringify(oc.wrapOpenShiftList(filterByFullName(['csnr-devops-lab-tools/imagestream.image.openshift.io/my-test-app-core'])))})
+    stubAction
+      .withArgs([
+        '--namespace=csnr-devops-lab-tools',
+        'get',
+        'imagestream.image.openshift.io/my-test-app',
+        '--output=json'
+      ])
+      .returns({
+        status: 0,
+        stdout: JSON.stringify(
+          oc.wrapOpenShiftList(
+            filterByFullName(['csnr-devops-lab-tools/imagestream.image.openshift.io/my-test-app'])
+          )
+        )
+      });
 
-    stub_action.withArgs(
-      ['--namespace=csnr-devops-lab-tools', 'get', 'imagestream.image.openshift.io/my-test-app', '--output=json']
-    ).returns({status:0, stdout:JSON.stringify(oc.wrapOpenShiftList(filterByFullName(['csnr-devops-lab-tools/imagestream.image.openshift.io/my-test-app'])))})
+    stubAction
+      .withArgs([
+        '--namespace=openshift',
+        'get',
+        'imagestream.image.openshift.io/python',
+        '--output=json'
+      ])
+      .returns({
+        status: 0,
+        stdout: fs.readFileSync(
+          `${__dirname}/resources/oc-607be20fff1241a2cd34534dfcadf0add63db2f9.cache.json`,
+          { encoding: 'utf-8' }
+        )
+      });
 
-    stub_action.withArgs(
-      ['--namespace=openshift', 'get', 'imagestream.image.openshift.io/python', '--output=json']
-    ).returns({status:0, stdout:fs.readFileSync(`${__dirname}/resources/oc-607be20fff1241a2cd34534dfcadf0add63db2f9.cache.json`, {encoding:'utf-8'})})
-    
-    stub_action.withArgs(
-      ['--namespace=openshift', 'get', 'ImageStreamTag/python:2.7', '--output=jsonpath={.image.metadata.name}']
-    ).returns({status:0, stdout:fs.readFileSync(`${__dirname}/resources/oc-0c27ba108b45b02184fb3c2d9f17c15e1ebe5eb0.cache.txt`, {encoding:'utf-8'})})
-    
-    stub_action.withArgs(
-      ['--namespace=csnr-devops-lab-tools', 'set', 'env', 'buildconfig.build.openshift.io/my-test-app-core', '--env=_BUILD_HASH=5c797a4d69cd9bebfb03c0fcf8cac94c68648c4b', '--overwrite=true']
-    ).returns({status:0, stdout:'not-used'})
+    stubAction
+      .withArgs([
+        '--namespace=openshift',
+        'get',
+        'ImageStreamTag/python:2.7',
+        '--output=jsonpath={.image.metadata.name}'
+      ])
+      .returns({
+        status: 0,
+        stdout: fs.readFileSync(
+          `${__dirname}/resources/oc-0c27ba108b45b02184fb3c2d9f17c15e1ebe5eb0.cache.txt`,
+          { encoding: 'utf-8' }
+        )
+      });
 
-    stub_action.withArgs(
-      ['--namespace=csnr-devops-lab-tools', 'set', 'env', 'buildconfig.build.openshift.io/my-test-app', '--env=_BUILD_HASH=bb6a1a5882cc91915f31c620482bacb8070deb3f', '--overwrite=true']
-    ).returns({status:0, stdout:'not-used'})
+    stubAction
+      .withArgs([
+        '--namespace=csnr-devops-lab-tools',
+        'set',
+        'env',
+        'buildconfig.build.openshift.io/my-test-app-core',
+        '--env=_BUILD_HASH=5c797a4d69cd9bebfb03c0fcf8cac94c68648c4b',
+        '--overwrite=true'
+      ])
+      .returns({ status: 0, stdout: 'not-used' });
 
-    stub_action.withArgs(
-      ['--namespace=csnr-devops-lab-tools', 'start-build', 'buildconfig.build.openshift.io/my-test-app-core', '--wait=true', '--output=name']
-    ).returns({status:0, stdout:'Build/my-test-app-core-1'})
+    stubAction
+      .withArgs([
+        '--namespace=csnr-devops-lab-tools',
+        'set',
+        'env',
+        'buildconfig.build.openshift.io/my-test-app',
+        '--env=_BUILD_HASH=bb6a1a5882cc91915f31c620482bacb8070deb3f',
+        '--overwrite=true'
+      ])
+      .returns({ status: 0, stdout: 'not-used' });
 
-    const build1={
-      kind:'Build',
-      metadata:{
+    stubAction
+      .withArgs([
+        '--namespace=csnr-devops-lab-tools',
+        'start-build',
+        'buildconfig.build.openshift.io/my-test-app-core',
+        '--wait=true',
+        '--output=name'
+      ])
+      .returns({ status: 0, stdout: 'Build/my-test-app-core-1' });
+
+    const build1 = {
+      kind: 'Build',
+      metadata: {
         name: 'my-test-app-core-1',
         namespace: 'csnr-devops-lab-tools'
       },
-      status:{
+      status: {
         phase: 'Complete'
       }
-    }
+    };
 
-    stub_action.withArgs(
-      ['--namespace=csnr-devops-lab-tools', 'get', 'Build/my-test-app-core-1', '--output=json']
-    ).returns({status:0, stdout:JSON.stringify(build1)})
+    stubAction
+      .withArgs([
+        '--namespace=csnr-devops-lab-tools',
+        'get',
+        'Build/my-test-app-core-1',
+        '--output=json'
+      ])
+      .returns({ status: 0, stdout: JSON.stringify(build1) });
 
-    stub_action.withArgs(
-      ['--namespace=csnr-devops-lab-tools', 'start-build', 'buildconfig.build.openshift.io/my-test-app', '--wait=true', '--output=name']
-    ).returns({status:0, stdout:'Build/my-test-app-1'})
+    stubAction
+      .withArgs([
+        '--namespace=csnr-devops-lab-tools',
+        'start-build',
+        'buildconfig.build.openshift.io/my-test-app',
+        '--wait=true',
+        '--output=name'
+      ])
+      .returns({ status: 0, stdout: 'Build/my-test-app-1' });
 
-    const build2={
-      kind:'Build',
-      metadata:{
+    const build2 = {
+      kind: 'Build',
+      metadata: {
         name: 'my-test-app-1',
         namespace: 'csnr-devops-lab-tools'
       },
-      status:{
+      status: {
         phase: 'Complete'
       }
-    }
+    };
 
-    stub_action.withArgs(
-      ['--namespace=csnr-devops-lab-tools', 'get', 'Build/my-test-app-1', '--output=json']
-    ).returns({status:0, stdout:JSON.stringify(build2)})
+    stubAction
+      .withArgs([
+        '--namespace=csnr-devops-lab-tools',
+        'get',
+        'Build/my-test-app-1',
+        '--output=json'
+      ])
+      .returns({ status: 0, stdout: JSON.stringify(build2) });
 
-    stub_action.withArgs(
-      ['--namespace=csnr-devops-lab-tools', 'get', 'ImageStreamTag/my-test-app-core:latest', '--output=jsonpath={.image.metadata.name}']
-    ).returns({status:0, stdout:fs.readFileSync(`${__dirname}/resources/oc-a1d829dffc04a39da661796a53dc512a6ead6033.cache.json`, {encoding:'utf-8'})})
+    stubAction
+      .withArgs([
+        '--namespace=csnr-devops-lab-tools',
+        'get',
+        'ImageStreamTag/my-test-app-core:latest',
+        '--output=jsonpath={.image.metadata.name}'
+      ])
+      .returns({
+        status: 0,
+        stdout: fs.readFileSync(
+          `${__dirname}/resources/oc-a1d829dffc04a39da661796a53dc512a6ead6033.cache.json`,
+          { encoding: 'utf-8' }
+        )
+      });
 
-    stub_action.withArgs(
-      ['--namespace=csnr-devops-lab-tools', 'set', 'env', 'buildconfig.build.openshift.io/my-test-app-core', '--env=_BUILD_HASH=4f9cc34cf9a4194b2f08f11a3cb995d79553a767', '--overwrite=true']
-    ).returns({status:0, stdout: '' })
+    stubAction
+      .withArgs([
+        '--namespace=csnr-devops-lab-tools',
+        'set',
+        'env',
+        'buildconfig.build.openshift.io/my-test-app-core',
+        '--env=_BUILD_HASH=4f9cc34cf9a4194b2f08f11a3cb995d79553a767',
+        '--overwrite=true'
+      ])
+      .returns({ status: 0, stdout: '' });
 
-    stub_action.withArgs(
-      ['--namespace=csnr-devops-lab-tools', 'set', 'env', 'buildconfig.build.openshift.io/my-test-app', '--env=_BUILD_HASH=04b941ded32c1b82c93b089d5c4bb6f227ea3786', '--overwrite=true']
-    ).returns({status:0, stdout: '' })
+    stubAction
+      .withArgs([
+        '--namespace=csnr-devops-lab-tools',
+        'set',
+        'env',
+        'buildconfig.build.openshift.io/my-test-app',
+        '--env=_BUILD_HASH=04b941ded32c1b82c93b089d5c4bb6f227ea3786',
+        '--overwrite=true'
+      ])
+      .returns({ status: 0, stdout: '' });
 
-    stubExecSync.withArgs('git', ['rev-parse', 'HEAD:app-base'], {cwd: BASEDIR, encoding: 'utf-8'}).returns({status:0, stdout:'123456'});
-    stubExecSync.withArgs('git', ['rev-parse', 'HEAD:app'], {cwd: BASEDIR, encoding: 'utf-8'}).returns({status:0, stdout:'123456'});
-    //stubExecSync.onCall(0).returns({status:0, stdout:'123456'})
+    stubExecSync
+      .withArgs('git', ['rev-parse', 'HEAD:app-base'], { cwd: BASEDIR, encoding: 'utf-8' })
+      .returns({ status: 0, stdout: '123456' });
+    stubExecSync
+      .withArgs('git', ['rev-parse', 'HEAD:app'], { cwd: BASEDIR, encoding: 'utf-8' })
+      .returns({ status: 0, stdout: '123456' });
+    // stubExecSync.onCall(0).returns({status:0, stdout:'123456'})
 
-    var applyResult = oc.apply(processResult)
-    expect(applyResult).toBeInstanceOf(OpenShiftResourceSelector)
-    expect(applyResult.names()).toEqual([`imagestream.image.openshift.io/${params.NAME}-core`, `imagestream.image.openshift.io/${params.NAME}`, `buildconfig.build.openshift.io/${params.NAME}-core`, `buildconfig.build.openshift.io/${params.NAME}`])    
-    var bc = applyResult.narrow('bc')
-    expect(bc.names()).toEqual([`buildconfig.build.openshift.io/${params.NAME}-core`, `buildconfig.build.openshift.io/${params.NAME}`])    
+    const applyResult = oc.apply(processResult);
+    expect(applyResult).toBeInstanceOf(OpenShiftResourceSelector);
+    expect(applyResult.names()).toEqual([
+      `imagestream.image.openshift.io/${params.NAME}-core`,
+      `imagestream.image.openshift.io/${params.NAME}`,
+      `buildconfig.build.openshift.io/${params.NAME}-core`,
+      `buildconfig.build.openshift.io/${params.NAME}`
+    ]);
+    const bc = applyResult.narrow('bc');
+    expect(bc.names()).toEqual([
+      `buildconfig.build.openshift.io/${params.NAME}-core`,
+      `buildconfig.build.openshift.io/${params.NAME}`
+    ]);
 
-    await bc.startBuild({wait:'true'})
-
+    await bc.startBuild({ wait: 'true' });
   }); // end it
 
   // eslint-disable-next-line func-names,space-before-function-paren,prefer-arrow-callback
@@ -294,15 +451,15 @@ describe('OpenShiftClientX', function() {
       'app-name': 'my-test-app',
       'env-id': 0,
       'env-name': 'build',
-      'github-owner': 'bcdevops',
-      'github-repo': 'pipeline-cli',
+      'github-owner': 'BCDevOps',
+      'github-repo': 'pipeline-cli'
     });
     // eslint-disable-next-line prettier/prettier
     stubAction.withArgs(
       ['--namespace=csnr-devops-lab-tools', 'apply', '-f', '-', '--output=name'], JSON.stringify(oc.wrapOpenShiftList(objects)) // eslint-disable-line prettier/prettier,max-len
     ).returns({ status: 0, stdout: 'abc\n123' }); // eslint-disable-line prettier/prettier,max-len
 
-    oc.applyAndBuild(objects);
+    await oc.applyAndBuild(objects);
   });
 
   // eslint-disable-next-line func-names,space-before-function-paren,prefer-arrow-callback
@@ -353,7 +510,7 @@ describe('OpenShiftClientX', function() {
       'app-name': 'my-test-app',
       'env-id': 0,
       'env-name': 'dev',
-      'github-owner': 'bcdevops',
+      'github-owner': 'BCDevOps',
       'github-repo': 'pipeline-cli'
     });
     // eslint-disable-next-line prettier/prettier
