@@ -61,7 +61,8 @@ const process = (item, template, parameters) => {
 // eslint-disable-next-line func-names,space-before-function-paren
 describe('OpenShiftClientX', function() {
   this.timeout(999999);
-  const oc = new OpenShiftClientX({ namespace: PROJECT_TOOLS });
+  const options = util.parseArgumentsFromArray();
+  const oc = new OpenShiftClientX(Object.assign({ namespace: PROJECT_TOOLS }, options));
 
   // eslint-disable-next-line func-names,space-before-function-paren,prefer-arrow-callback
   afterEach(function() {
