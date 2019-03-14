@@ -236,12 +236,12 @@ describe('OpenShiftClientX', function() {
 
     // eslint-disable-next-line func-names,space-before-function-paren,prefer-arrow-callback
     stubAction.callsFake(function fakeFn(...args) {
-      throw new Error(`Not Implemented: ${JSON.stringify(args)}`);
+      throw new Error(`Not Implemented - oc._action: ${JSON.stringify(args)}`);
     });
 
     // eslint-disable-next-line func-names,space-before-function-paren,prefer-arrow-callback
     stubExecSync.callsFake(function fakeFn(...args) {
-      throw new Error(`Not Implemented: ${JSON.stringify(args)}`);
+      throw new Error(`Not Implemented - util.execSync: ${JSON.stringify(args)}`);
     });
 
     const objects = [];
@@ -257,6 +257,21 @@ describe('OpenShiftClientX', function() {
     stubAction.withArgs(
       ['--namespace=csnr-devops-lab-tools', 'process', '-f', `${BASEDIR}/test/resources/bc.template.json`, `--param=NAME=${params.NAME}`, '--output=json'] // eslint-disable-line prettier/prettier,max-len
     ).returns({ status: 0, stdout: JSON.stringify(processedTemplate) }); // eslint-disable-line prettier/prettier,max-len
+
+    // eslint-disable-next-line prettier/prettier
+    stubExecSync.withArgs(
+      'git', ['init', '-q', '/tmp/fc2dcf724ddb37bc0851a853b8a35eee7c0956ee'], { cwd: '/tmp', encoding: 'utf-8' } // eslint-disable-line prettier/prettier,max-len
+    ).returns({ status: 0 }); // eslint-disable-line prettier/prettier,max-len
+
+    // eslint-disable-next-line prettier/prettier
+    stubExecSync.withArgs(
+      "git",["remote","add","origin","https://github.com/cvarjao-o/hello-world.git"],{"cwd":"/tmp/fc2dcf724ddb37bc0851a853b8a35eee7c0956ee","encoding":"utf-8"} // eslint-disable-line prettier/prettier,max-len
+    ).returns({ status: 0 }); // eslint-disable-line prettier/prettier,max-len
+
+    // eslint-disable-next-line prettier/prettier
+    stubExecSync.withArgs(
+      "git",["fetch","--depth","1","--no-tags","--update-shallow","origin","WIP:WIP"],{"cwd":"/tmp/fc2dcf724ddb37bc0851a853b8a35eee7c0956ee","encoding":"utf-8"} // eslint-disable-line prettier/prettier,max-len
+    ).returns({ status: 0 }); // eslint-disable-line prettier/prettier,max-len
 
     // eslint-disable-next-line prettier/prettier
     stubExecSync.withArgs(
