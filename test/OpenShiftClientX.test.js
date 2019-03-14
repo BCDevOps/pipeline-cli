@@ -423,12 +423,12 @@ describe('OpenShiftClientX', function() {
 
     // eslint-disable-next-line prettier/prettier
     stubExecSync.withArgs(
-      "git",["remote","add","origin","https://github.com/cvarjao-o/hello-world.git"],{"cwd":"/tmp/fc2dcf724ddb37bc0851a853b8a35eee7c0956ee","encoding":"utf-8"} // eslint-disable-line prettier/prettier,max-len
+      'git', ['remote', 'add', 'origin', 'https://github.com/cvarjao-o/hello-world.git'], { cwd: '/tmp/fc2dcf724ddb37bc0851a853b8a35eee7c0956ee', encoding: 'utf-8' } // eslint-disable-line prettier/prettier,max-len
     ).returns({ status: 0 }); // eslint-disable-line prettier/prettier,max-len
 
     // eslint-disable-next-line prettier/prettier
     stubExecSync.withArgs(
-      "git",["fetch","--depth","1","--no-tags","--update-shallow","origin","WIP:WIP"],{"cwd":"/tmp/fc2dcf724ddb37bc0851a853b8a35eee7c0956ee","encoding":"utf-8"} // eslint-disable-line prettier/prettier,max-len
+      'git', ['fetch', '--depth', '1', '--no-tags', '--update-shallow', 'origin', 'WIP:WIP'], { cwd: '/tmp/fc2dcf724ddb37bc0851a853b8a35eee7c0956ee', encoding: 'utf-8' } // eslint-disable-line prettier/prettier,max-len
     ).returns({ status: 0 }); // eslint-disable-line prettier/prettier,max-len
 
     // eslint-disable-next-line prettier/prettier
