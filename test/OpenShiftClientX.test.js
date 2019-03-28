@@ -61,7 +61,8 @@ const process = (item, template, parameters) => {
 // eslint-disable-next-line func-names,space-before-function-paren
 describe('OpenShiftClientX', function() {
   this.timeout(999999);
-  const options = util.parseArgumentsFromArray();
+  // eslint-disable-next-line prettier/prettier
+  const options = util.parseArgumentsFromArray('--git.owner=bcdevops', '--git.repository=pipeline-cli');
   const oc = new OpenShiftClientX(Object.assign({ namespace: PROJECT_TOOLS }, options));
 
   // eslint-disable-next-line func-names,space-before-function-paren,prefer-arrow-callback
@@ -467,7 +468,7 @@ describe('OpenShiftClientX', function() {
       'app-name': 'my-test-app',
       'env-id': 0,
       'env-name': 'build',
-      'github-owner': 'BCDevOps',
+      'github-owner': 'bcdevops',
       'github-repo': 'pipeline-cli'
     });
     // eslint-disable-next-line prettier/prettier
@@ -526,7 +527,7 @@ describe('OpenShiftClientX', function() {
       'app-name': 'my-test-app',
       'env-id': 0,
       'env-name': 'dev',
-      'github-owner': 'BCDevOps',
+      'github-owner': 'bcdevops',
       'github-repo': 'pipeline-cli'
     });
     // eslint-disable-next-line prettier/prettier
