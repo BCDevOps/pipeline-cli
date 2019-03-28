@@ -25,6 +25,7 @@ const sinon = require('sinon');
 
 const sandbox = sinon.createSandbox();
 
+const path = require('path');
 const OpenShiftClient = require('../lib/OpenShiftClient');
 const OpenShiftResourceSelector = require('../lib/OpenShiftResourceSelector');
 
@@ -45,6 +46,18 @@ describe('OpenShiftClient - @fast', function() {
     const fileUrl = oc.toFileUrl('./examples.bc.json');
     expect(fileUrl).toMatch(/^file:\/\//);
     expect(() => oc.toFileUrl({})).toThrow();
+    expect(oc.toFileUrl('/abc/dev')).toEqual('file:///abc/dev');
+
+    const stub = sandbox.stub(path, 'resolve');
+    stub.withArgs("c:\\temp\\temp.json")
+    .returns("c:\\temp\\temp.json");
+
+    stub.withArgs("c:/temp/temp.json")
+    .returns("c:/temp/temp.json");
+
+    // See https://github.com/BCDevOps/pipeline-cli/pull/5
+    expect(oc.toFileUrl('c:\\temp\\temp.json')).toEqual('file://c:/temp/temp.json');
+    expect(oc.toFileUrl('c:/temp/temp.json')).toEqual('file://c:/temp/temp.json');
   }); // end it
 
   it('toFilePath', function() {
@@ -286,5 +299,5 @@ describe('OpenShiftClient - @fast', function() {
     expect(applyResult.names()).toEqual([`imagestream.image.openshift.io/${params.NAME}`, `buildconfig.build.openshift.io/${params.NAME}`])
     var deleteResult = applyResult.delete()
     expect(deleteResult.names()).toHaveLength(2)
-  })
+  });
 }); // end describe
