@@ -580,6 +580,11 @@ describe('OpenShiftClientX', function() {
       ['--namespace=csnr-devops-lab-tools', 'get', 'ImageStreamTag/my-test-app:v1.0', '--output=json', '--ignore-not-found=true'] // eslint-disable-line prettier/prettier,max-len
     ).returns({ status: 0, stdout: JSON.stringify({ kind: 'ImageStreamTag', metadata: { name: 'my-test-app:v1.0' }, image: { metadata: { name: 'my-test-app@1786a7f1-66a6-47a6-8ec4-be14a7a8ee02' } } }) }); // eslint-disable-line prettier/prettier,max-len
 
+    // eslint-disable-next-line prettier/prettier
+    stubAction.withArgs(
+      ['--namespace=csnr-devops-lab-tools', 'tag', 'csnr-devops-lab-tools/my-test-app:build-1.0-0', 'my-test-app:v1.0', '--reference-policy=local'] // eslint-disable-line prettier/prettier,max-len
+    ).returns({ status: 0, stdout: '' }); // eslint-disable-line prettier/prettier,max-len
+
     oc.importImageStreams(objects, 'v1.0', 'csnr-devops-lab-tools', 'build-1.0-0');
     oc.fetchSecretsAndConfigMaps(objects);
 
