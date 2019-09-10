@@ -60,7 +60,8 @@ jobs:
 
 workflows:
   version: 2
-  test:
+
+  commit:
     jobs:
       - build
       - lint:
@@ -69,6 +70,20 @@ workflows:
       - test:
           requires:
             - lint
+      - audit:
+          requires:
+            - build
+
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - build
       - audit:
           requires:
             - build
