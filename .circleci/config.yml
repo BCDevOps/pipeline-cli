@@ -1,0 +1,74 @@
+version: 2.1
+
+executors:
+  node:
+    docker:
+      - image: circleci/node:10.16.3
+
+jobs:
+  build:
+    executor: node
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore NPM Package Cache
+          keys:
+            - npm-packages-{{ checksum "package-lock.json" }}
+            - npm-packages-
+      - run:
+          name: Verify Cache
+          command: npm cache verify
+      - run:
+          name: Install Dependencies
+          command: npm ci
+      - save_cache:
+          name: Save NPM Package Cache
+          key: npm-packages-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.npm/_cacache
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  lint:
+    executor: node
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Run Tests via NPM
+          command: npm run test:lint
+
+  test:
+    executor: node
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Run Tests via NPM
+          command: npm test
+
+  audit:
+    executor: node
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Audit Dependencies
+          command: npm audit
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - build
+      - lint:
+          requires:
+            - build
+      - test:
+          requires:
+            - lint
+      - audit:
+          requires:
+            - build
