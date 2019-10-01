@@ -22,35 +22,37 @@ const expect = require('expect');
 const OpenShiftClientX = require('../lib/OpenShiftClientX');
 const OpenShiftResourceSelector = require('../lib/OpenShiftResourceSelector');
 
-const PROJECT_TOOLS = 'csnr-devops-lab-tools'
-const PROJECT_DEPLOY = 'csnr-devops-lab-deploy'
+const PROJECT_TOOLS = 'csnr-devops-lab-tools';
+// const PROJECT_DEPLOY = 'csnr-devops-lab-deploy';
 
-describe.skip('OpenShiftClientX - @e2e', function() {
+describe.skip('OpenShiftClientX - @e2e', () => {
   this.timeout(999999);
-  const oc = new OpenShiftClientX({namespace:PROJECT_TOOLS})
+  const oc = new OpenShiftClientX({ namespace: PROJECT_TOOLS });
 
-  it('e2e - @e2e', function() {
-    var params={NAME:'my-test-app'}
+  it('e2e - @e2e', () => {
+    const params = { NAME: 'my-test-app' };
 
-    
-    var fileUrl = oc.toFileUrl(`${__dirname}/resources/bc.template.json`)
-    var processResult= oc.process(fileUrl,{param:params});
-    
-    oc.delete(oc.toNamesList(processResult), {'ignore-not-found':'true'})
+    const fileUrl = oc.toFileUrl(`${__dirname}/resources/bc.template.json`);
+    const processResult = oc.process(fileUrl, { param: params });
 
-    expect(processResult).toBeInstanceOf(Array)
-    expect(processResult).toHaveLength(4)
+    oc.delete(oc.toNamesList(processResult), { 'ignore-not-found': 'true' });
 
-    oc.applyBestPractices(oc.wrapOpenShiftList(processResult))
-    oc.applyRecommendedLabels(processResult, 'my-test-app', 'dev', '1')
-    oc.fetchSecretsAndConfigMaps(processResult)
+    expect(processResult).toBeInstanceOf(Array);
+    expect(processResult).toHaveLength(4);
 
-    var applyResult = oc.apply(processResult)
-    expect(applyResult).toBeInstanceOf(OpenShiftResourceSelector)
+    oc.applyBestPractices(oc.wrapOpenShiftList(processResult));
+    oc.applyRecommendedLabels(processResult, 'my-test-app', 'dev', '1');
+    oc.fetchSecretsAndConfigMaps(processResult);
 
-    expect(applyResult.names()).toEqual([`imagestream.image.openshift.io/${params.NAME}`, `imagestream.image.openshift.io/${params.NAME}-core`, `buildconfig.build.openshift.io/${params.NAME}-core`, `buildconfig.build.openshift.io/${params.NAME}`])
-    
-    applyResult.narrow('bc').startBuild({wait:'true'})
+    const applyResult = oc.apply(processResult);
+    expect(applyResult).toBeInstanceOf(OpenShiftResourceSelector);
 
-  }) //end it
-}) //end describe
+    expect(applyResult.names()).toEqual([
+      `imagestream.image.openshift.io/${params.NAME}`,
+      `imagestream.image.openshift.io/${params.NAME}-core`,
+      `buildconfig.build.openshift.io/${params.NAME}-core`,
+      `buildconfig.build.openshift.io/${params.NAME}`
+    ]);
+    applyResult.narrow('bc').startBuild({ wait: 'true' });
+  }); // end it
+}); // end describe
