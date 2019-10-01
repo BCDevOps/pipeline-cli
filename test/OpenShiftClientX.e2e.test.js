@@ -26,10 +26,10 @@ const PROJECT_TOOLS = 'csnr-devops-lab-tools';
 // const PROJECT_DEPLOY = 'csnr-devops-lab-deploy';
 
 describe.skip('OpenShiftClientX - @e2e', () => {
-  this.timeout(999999);
+  // this.timeout(999999);
   const oc = new OpenShiftClientX({ namespace: PROJECT_TOOLS });
 
-  it('e2e - @e2e', () => {
+  it.skip('e2e - @e2e', () => {
     const params = { NAME: 'my-test-app' };
 
     const fileUrl = oc.toFileUrl(`${__dirname}/resources/bc.template.json`);

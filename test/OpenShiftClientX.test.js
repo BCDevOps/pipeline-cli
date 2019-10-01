@@ -150,7 +150,11 @@ describe('OpenShiftClientX', function() {
       )
       .returns({
         status: 0,
-        stdout: `imagestream.image.openshift.io/${params.NAME}-core\nimagestream.image.openshift.io/${params.NAME}\nbuildconfig.build.openshift.io/${params.NAME}-core\nbuildconfig.build.openshift.io/${params.NAME}`
+        stdout: `imagestream.image.openshift.io/${
+          params.NAME
+        }-core\nimagestream.image.openshift.io/${params.NAME}\nbuildconfig.build.openshift.io/${
+          params.NAME
+        }-core\nbuildconfig.build.openshift.io/${params.NAME}`
       });
 
     const filterByFullName = (fullNames) => {
