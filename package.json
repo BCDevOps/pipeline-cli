@@ -1,5 +1,5 @@
 {
-  "name": "pipeline-cli",
+  "name": "@bcgov/pipeline-cli",
   "version": "1.0.0",
   "description": "Pipeline Utility",
   "main": "index.js",
