@@ -6,7 +6,8 @@
         "mocha": true
     },
     "plugins": [
-      "eslint-plugin-prettier"
+      "eslint-plugin-prettier",
+      "mocha"
     ],
     "extends": "airbnb-base",
     "globals": {

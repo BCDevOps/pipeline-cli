@@ -150,11 +150,7 @@ describe('OpenShiftClientX', function() {
       )
       .returns({
         status: 0,
-        stdout: `imagestream.image.openshift.io/${
-          params.NAME
-        }-core\nimagestream.image.openshift.io/${params.NAME}\nbuildconfig.build.openshift.io/${
-          params.NAME
-        }-core\nbuildconfig.build.openshift.io/${params.NAME}`
+        stdout: `imagestream.image.openshift.io/${params.NAME}-core\nimagestream.image.openshift.io/${params.NAME}\nbuildconfig.build.openshift.io/${params.NAME}-core\nbuildconfig.build.openshift.io/${params.NAME}`
       });
 
     const filterByFullName = (fullNames) => {
@@ -614,7 +610,7 @@ describe('OpenShiftClientX', function() {
     // eslint-disable-next-line max-len
     // eslint-disable-next-line func-names, space-before-function-paren, prefer-arrow-callback, prettier/prettier, max-len
     stubActionAsync.withArgs(
-      ["--namespace=csnr-devops-lab-tools", "get", "dc", "--selector=app=my-test-app-0", "--watch=true", "--output=jsonpath={.metadata.name}{\"\\t\"}{.status.replicas}{\"\\t\"}{.status.availableReplicas}{\"\\t\"}{.status.unavailableReplicas}{\"\\t\"}{.status.latestVersion}{\"\\n\"}"] // eslint-disable-line prettier/prettier,quotes,max-len
+      ["--namespace=csnr-devops-lab-tools", "get", "dc", "--selector=app=my-test-app-0", "--watch=true"] // eslint-disable-line prettier/prettier,quotes,max-len
     ).returns(createProc()); // eslint-disable-line prettier/prettier,max-len
 
     // eslint-disable-next-line max-len
