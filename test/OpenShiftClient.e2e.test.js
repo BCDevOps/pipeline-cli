@@ -1,4 +1,24 @@
+//
+// pipeline-cli
+//
+// Copyright © 2019 Province of British Columbia
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
 'use strict';
+
+/* eslint-disable */
 
 const expect = require('expect');
 const sinon = require('sinon');
@@ -11,7 +31,7 @@ const PROJECT_TOOLS = 'csnr-devops-lab-tools'
 const PROJECT_DEPLOY = 'csnr-devops-lab-deploy'
 const stubbed = false
 
-describe('OpenShiftClient (@slow @e2e)', function() {
+describe.skip('OpenShiftClient (@slow @e2e)', function() {
   this.timeout(80000);
   const oc = new OpenShiftClient({namespace:PROJECT_TOOLS})
   afterEach(function () {
@@ -19,7 +39,7 @@ describe('OpenShiftClient (@slow @e2e)', function() {
     sandbox.restore();
   });
 
-  it('create - @slow @e2e', function() {
+  it.skip('create - @slow @e2e', function() {
     //return new Promise(()=>{
       var params={NAME:'my-test-app'}
       var fileUrl = oc.toFileUrl(`${__dirname}/resources/bc.template-core.json`)
@@ -50,7 +70,7 @@ describe('OpenShiftClient (@slow @e2e)', function() {
     //})//end promise
   }) //end it
 
-  it('process-only - @slow @e2e', function() {
+  it.skip('process-only - @slow @e2e', function() {
     var params={NAME:'my-test-app'}
     var fileUrl = oc.toFileUrl(`${__dirname}/resources/bc.template.json`)
     
@@ -73,7 +93,7 @@ describe('OpenShiftClient (@slow @e2e)', function() {
     //sinon.reset()
   })
 
-  it('process-and-apply - @slow @e2e', function() {
+  it.skip('process-and-apply - @slow @e2e', function() {
     var params={NAME:'my-test-app'}
     if (stubbed){
       var stub = sandbox.stub(oc, '_action')

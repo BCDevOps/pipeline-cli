@@ -1,13 +1,34 @@
 {
-  "name": "pipeline-cli",
+  "name": "@bcgov/pipeline-cli",
   "version": "1.0.0",
   "description": "Pipeline Utility",
   "main": "index.js",
+  "nyc": {
+    "all": true,
+    "include": [
+      "lib/**/*.js"
+    ],
+    "exclude": [
+      "coverage/**",
+      "packages/*/test/**",
+      "test/**",
+      "test{,-*}.js",
+      "**/*{.,-}test.js",
+      "**/__tests__/**",
+      "**/node_modules/**",
+      "**/babel.config.js",
+      "lib/Pipeline.js",
+      "lib/PipelineGate.js",
+      "lib/PipelineStage.js",
+      "lib/*.1.js"
+    ]
+  },
   "scripts": {
-    "test": "mocha --grep @e2e --invert test/**/**.test.js",
-    "coverage": "nyc --reporter=html mocha --reporter mochawesome --grep @e2e --invert test/**/**.test.js",
-    "fast-test": "mocha --grep @e2e --invert test/**/**.test.js",
-    "e2e": "nyc --reporter=html mocha test/**/**.test.js"
+    "test": "mocha test/**/**.test.js",
+    "coverage": "nyc --reporter=html mocha --reporter mochawesome test/**/**.test.js",
+    "test:fast": "mocha --grep @slow --invert test/**/**.test.js",
+    "e2e": "nyc --reporter=html mocha test/**/**.test.js",
+    "test:lint": "eslint --env node --ext .js lib"
   },
   "repository": {
     "type": "git",
@@ -23,13 +44,22 @@
     "debug": "^4.1.0",
     "lodash.isfunction": "^3.0.9",
     "lodash.isplainobject": "^4.0.6",
-    "lodash.isstring": "^4.0.1"
+    "lodash.isstring": "^4.0.1",
+    "lodash.isempty": "^4.0.1",
+    "snakecase-keys": "^3.1.0"
   },
   "devDependencies": {
-    "expect": "^24.1.0",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.2.0",
+    "eslint-config-prettier": "^4.3.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-mocha": "^6.1.1",
+    "eslint-plugin-prettier": "^3.1.0",
+    "expect": "^24.8.0",
     "mocha": "^5.2.0",
-    "mochawesome": "^3.1.1",
-    "nyc": "^13.3.0",
-    "sinon": "^7.1.1"
+    "mochawesome": "^3.1.2",
+    "nyc": "^14.1.1",
+    "prettier": "^1.18.2",
+    "sinon": "^7.3.2"
   }
 }

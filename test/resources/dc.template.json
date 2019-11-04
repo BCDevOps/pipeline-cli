@@ -12,6 +12,26 @@
       "metadata": {
         "name":"${NAME}"
       }
+    },
+    {
+      "kind": "Secret",
+      "apiVersion": "v1",
+      "metadata": {
+        "name":"${NAME}",
+        "annotations": {
+          "as-copy-of": "template.${NAME}"
+        }
+      }
+    },
+    {
+      "kind": "ConfigMap",
+      "apiVersion": "v1",
+      "metadata": {
+        "name":"${NAME}",
+        "annotations": {
+          "as-copy-of": "template.${NAME}"
+        }
+      }
     }
   ]
 }
