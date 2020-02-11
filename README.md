@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/BCDevOps/pipeline-cli.svg?style=svg)](https://circleci.com/gh/BCDevOps/pipeline-cli)
+
 # pipeline-cli
 
 The `pipeline-cli` is an opinionated utility wrapper around [oc](https://docs.okd.io/3.11/cli_reference/index.html) CLI.
