@@ -45,4 +45,19 @@ describe('util', () => {
   it('execSync', () => {
     expect(util.execSync('git', ['version'], { cwd: '/tmp', encoding: 'utf-8' }).status).toEqual(0);
   }).timeout(80000);
+
+  describe('Parsing options', () => {
+    it('allows prs', () => {
+      const argumentsArr = ['npm', 'run', 'build', '--pr=4'];
+      const options = util.parseArgumentsFromArray.apply(null, argumentsArr);
+      expect(options.pr).toBe('4');
+      expect(options.git.ref).toBe('refs/pull/4/head');
+    });
+
+    it('allows branch references', () => {
+      const argumentsArr = ['npm', 'run', 'build', '--ref=master'];
+      const options = util.parseArgumentsFromArray.apply(null, argumentsArr);
+      expect(options.ref).toBe('master');
+    });
+  });
 }); // end describe

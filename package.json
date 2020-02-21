@@ -1,6 +1,6 @@
 {
   "name": "@bcgov/pipeline-cli",
-  "version": "1.0.0",
+  "version": "1.0.1-0",
   "description": "Pipeline Utility",
   "main": "index.js",
   "nyc": {
