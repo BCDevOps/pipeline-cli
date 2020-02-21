@@ -25,7 +25,7 @@
   },
   "scripts": {
     "test": "mocha test/**/**.test.js",
-    "coverage": "nyc --reporter=html mocha --reporter mochawesome test/**/**.test.js",
+    "coverage": "nyc --reporter=lcovonly mocha --reporter mochawesome test/**/**.test.js",
     "test:fast": "mocha --grep @slow --invert test/**/**.test.js",
     "e2e": "nyc --reporter=html mocha test/**/**.test.js",
     "test:lint": "eslint --env node --ext .js lib"
@@ -59,7 +59,8 @@
     "husky": "^4.2.3",
     "lint-staged": "^10.0.7",
     "mocha": "^5.2.0",
-    "mochawesome": "^3.1.2",
+    "mochawesome": "^4.1.0",
+
     "nyc": "^14.1.1",
     "prettier": "^1.18.2",
     "sinon": "^7.3.2"
