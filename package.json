@@ -32,14 +32,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cvarjao-o/pipeline-cli.git"
+    "url": "git+https://github.com/bcDevOps/pipeline-cli.git"
   },
   "author": "Clecio Varjao",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/cvarjao-o/pipeline-cli/issues"
+    "url": "https://github.com/bcDevOps/pipeline-cli/issues"
   },
-  "homepage": "https://github.com/cvarjao-o/pipeline-cli#readme",
+  "homepage": "https://github.com/bcDevOps/pipeline-cli#readme",
   "dependencies": {
     "debug": "^4.1.0",
     "lodash.isfunction": "^3.0.9",
