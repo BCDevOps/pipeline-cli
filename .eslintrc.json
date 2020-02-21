@@ -9,7 +9,6 @@
       "eslint-plugin-prettier",
       "mocha"
     ],
-    "extends": "airbnb-base",
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"
@@ -18,29 +17,23 @@
         "ecmaVersion": 2018
     },
     "rules": {
+      "no-console": ["error"],
+      "no-unused-vars": ["error"],
       "prettier/prettier": ["error"],
-      "strict": 0,
-      "quotes": ["error", "single"],
-      "arrow-parens": ["error", "always"],
-      "no-underscore-dangle": ["error", {
-        "allow": [
-            "_cwd", "_args",
-            "_options", "_rawAction",
-            "_action", "_actionAsync",
-            "_emptyListModel", "_actionReturningName", "_actionReturningName2",
-            "_setCache", "_getCache",
-            "_startBuild", "_bcCacheEntry",
-            "_names", "_isEmptyStatic", "_identifiers"
-          ]
-        }
-      ],
-      "arrow-body-style": ["error", "always"],
-      "comma-dangle": ["error", {
-        "arrays": "never",
-        "objects": "never",
-        "imports": "never",
-        "exports": "never",
-        "functions": "ignore"
-      }]
+      "linebreak-style": ["warn", "unix"],
+      "semi": ["error", "always"],
+      "indent": "off",
+      "import/no-named-as-default": "off",
+      "no-shadow": "off",
+      "quote-props": "off",
+      "max-len": "off",
+      "react/sort-comp": "off",
+      "no-unused-expressions": "warn",
+      "no-useless-concat": "warn",
+      "block-scoped-var": "error",
+      "consistent-return": "error",
+      "operator-linebreak": "off",
+      "arrow-parens": "off",
+      "eol-last": ["error", "always"]
     }
 }

@@ -25,21 +25,21 @@
   },
   "scripts": {
     "test": "mocha test/**/**.test.js",
-    "coverage": "nyc --reporter=html mocha --reporter mochawesome test/**/**.test.js",
+    "coverage": "nyc --reporter=lcovonly mocha --reporter mochawesome test/**/**.test.js",
     "test:fast": "mocha --grep @slow --invert test/**/**.test.js",
     "e2e": "nyc --reporter=html mocha test/**/**.test.js",
     "test:lint": "eslint --env node --ext .js lib"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cvarjao-o/pipeline-cli.git"
+    "url": "git+https://github.com/bcDevOps/pipeline-cli.git"
   },
   "author": "Clecio Varjao",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/cvarjao-o/pipeline-cli/issues"
+    "url": "https://github.com/bcDevOps/pipeline-cli/issues"
   },
-  "homepage": "https://github.com/cvarjao-o/pipeline-cli#readme",
+  "homepage": "https://github.com/bcDevOps/pipeline-cli#readme",
   "dependencies": {
     "debug": "^4.1.0",
     "lodash.isfunction": "^3.0.9",
@@ -54,12 +54,25 @@
     "eslint-config-prettier": "^4.3.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-mocha": "^6.1.1",
-    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-prettier": "^3.1.2",
     "expect": "^24.8.0",
+    "husky": "^4.2.3",
+    "lint-staged": "^10.0.7",
     "mocha": "^5.2.0",
-    "mochawesome": "^3.1.2",
+    "mochawesome": "^4.1.0",
+
     "nyc": "^14.1.1",
     "prettier": "^1.18.2",
     "sinon": "^7.3.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix"
+    ]
   }
 }
