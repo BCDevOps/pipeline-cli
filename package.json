@@ -1,8 +1,12 @@
 {
   "name": "@bcgov/pipeline-cli",
-  "version": "1.0.1-0",
+  "version": "1.0.1-2",
   "description": "Pipeline Utility",
   "main": "index.js",
+  "files": [
+    "index.js",
+    "/lib"
+  ],
   "nyc": {
     "all": true,
     "include": [
@@ -28,7 +32,8 @@
     "coverage": "nyc --reporter=lcovonly mocha --reporter mochawesome test/**/**.test.js",
     "test:fast": "mocha --grep @slow --invert test/**/**.test.js",
     "e2e": "nyc --reporter=html mocha test/**/**.test.js",
-    "test:lint": "eslint --env node --ext .js lib"
+    "test:lint": "eslint --env node --ext .js lib",
+    "release": "npm --no-git-tag-version version prerelease && npm publish --tag alpha"
   },
   "repository": {
     "type": "git",
