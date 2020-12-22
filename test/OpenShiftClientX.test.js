@@ -538,7 +538,7 @@ describe('OpenShiftClientX', function() {
 
     // eslint-disable-next-line prettier/prettier
     stubAction.withArgs(
-      ['--namespace=csnr-devops-lab-tools', 'get', 'dc', '--selector=app=my-test-app-0', '--output=jsonpath={range .items[*]}{.metadata.name}{"\\t"}{.spec.replicas}{"\\t"}{.status.latestVersion}{"\\n"}{end}'] // eslint-disable-line prettier/prettier,max-len
+      ['--namespace=csnr-devops-lab-tools', 'get', 'dc', '--selector=app=my-test-app-0', '--output=template={{range .items}}{{.metadata.name}}{{.spec.replicas}}{{.status.latestVersion}} {{end}}'] // eslint-disable-line prettier/prettier,max-len
     ) // eslint-disable-line prettier/prettier,max-len,indent
     .onFirstCall().returns({ status: 0, stdout: 'my-test-app-0\t1\t1' }) // eslint-disable-line prettier/prettier,max-len,indent
     .returns({ status: 0, stdout: 'my-test-app-0\t1\t2' }); // eslint-disable-line prettier/prettier,max-len,indent,newline-per-chained-call
