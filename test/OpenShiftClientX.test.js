@@ -37,18 +37,18 @@ const PROJECT_TOOLS = 'csnr-devops-lab-tools';
 const BASEDIR = path.resolve(__dirname, '..');
 
 const process = (item, template, parameters) => {
-  Object.keys(item).forEach((key) => {
+  Object.keys(item).forEach(key => {
     let value = item[key];
     if (util.isString(value)) {
       value = value.replace('', '');
-      template.parameters.forEach((param) => {
+      template.parameters.forEach(param => {
         const regex = new RegExp(`\\$\{${param.name}}`, 'gm');
         value = value.replace(regex, parameters[param.name] || param.value || '');
       });
       // eslint-disable-next-line no-param-reassign
       item[key] = value;
     } else if (util.isArray(value)) {
-      value.forEach((subItem) => {
+      value.forEach(subItem => {
         process(subItem, template, parameters);
       });
     } else if (util.isPlainObject(value)) {
@@ -108,7 +108,7 @@ describe('OpenShiftClientX', function() {
         '-f',
         `${__dirname}/resources/bc.template-core.json`,
         '--param=NAME=my-test-app',
-        '--output=json'
+        '--output=json',
       ])
       .returns({
         status: 0,
@@ -116,9 +116,9 @@ describe('OpenShiftClientX', function() {
           kind: 'List',
           items: [
             { kind: 'ImageStream', metadata: { name: params.NAME } },
-            { kind: 'BuildConfig', metadata: { name: params.NAME } }
-          ]
-        })
+            { kind: 'BuildConfig', metadata: { name: params.NAME } },
+          ],
+        }),
       });
 
     stubAction.callsFake((...args) => {
@@ -131,7 +131,7 @@ describe('OpenShiftClientX', function() {
       `imagestream.image.openshift.io/${params.NAME}`,
       `imagestream.image.openshift.io/${params.NAME}-core`,
       `buildconfig.build.openshift.io/${params.NAME}-core`,
-      `buildconfig.build.openshift.io/${params.NAME}`
+      `buildconfig.build.openshift.io/${params.NAME}`,
     ]);
 
     oc.applyBestPractices(oc.wrapOpenShiftList(processResult));
@@ -146,15 +146,15 @@ describe('OpenShiftClientX', function() {
     stubAction
       .withArgs(
         ['--namespace=csnr-devops-lab-tools', 'apply', '-f', '-', '--output=name'],
-        JSON.stringify(oc.wrapOpenShiftList(processResult))
+        JSON.stringify(oc.wrapOpenShiftList(processResult)),
       )
       .returns({
         status: 0,
-        stdout: `imagestream.image.openshift.io/${params.NAME}-core\nimagestream.image.openshift.io/${params.NAME}\nbuildconfig.build.openshift.io/${params.NAME}-core\nbuildconfig.build.openshift.io/${params.NAME}`
+        stdout: `imagestream.image.openshift.io/${params.NAME}-core\nimagestream.image.openshift.io/${params.NAME}\nbuildconfig.build.openshift.io/${params.NAME}-core\nbuildconfig.build.openshift.io/${params.NAME}`,
       });
 
-    const filterByFullName = (fullNames) => {
-      const subset = processResult.filter((item) => {
+    const filterByFullName = fullNames => {
+      const subset = processResult.filter(item => {
         const fullName = util.fullName(item);
         return fullNames.includes(fullName);
       });
@@ -162,7 +162,7 @@ describe('OpenShiftClientX', function() {
     };
     const subset1 = filterByFullName([
       'csnr-devops-lab-tools/buildconfig.build.openshift.io/my-test-app-core',
-      'csnr-devops-lab-tools/buildconfig.build.openshift.io/my-test-app'
+      'csnr-devops-lab-tools/buildconfig.build.openshift.io/my-test-app',
     ]);
 
     stubAction
@@ -171,7 +171,7 @@ describe('OpenShiftClientX', function() {
         'get',
         'buildconfig.build.openshift.io/my-test-app-core',
         'buildconfig.build.openshift.io/my-test-app',
-        '--output=json'
+        '--output=json',
       ])
       .returns({ status: 0, stdout: JSON.stringify(oc.wrapOpenShiftList(subset1)) });
 
@@ -180,17 +180,17 @@ describe('OpenShiftClientX', function() {
         '--namespace=csnr-devops-lab-tools',
         'get',
         'imagestream.image.openshift.io/my-test-app-core',
-        '--output=json'
+        '--output=json',
       ])
       .returns({
         status: 0,
         stdout: JSON.stringify(
           oc.wrapOpenShiftList(
             filterByFullName([
-              'csnr-devops-lab-tools/imagestream.image.openshift.io/my-test-app-core'
-            ])
-          )
-        )
+              'csnr-devops-lab-tools/imagestream.image.openshift.io/my-test-app-core',
+            ]),
+          ),
+        ),
       });
 
     stubAction
@@ -198,15 +198,15 @@ describe('OpenShiftClientX', function() {
         '--namespace=csnr-devops-lab-tools',
         'get',
         'imagestream.image.openshift.io/my-test-app',
-        '--output=json'
+        '--output=json',
       ])
       .returns({
         status: 0,
         stdout: JSON.stringify(
           oc.wrapOpenShiftList(
-            filterByFullName(['csnr-devops-lab-tools/imagestream.image.openshift.io/my-test-app'])
-          )
-        )
+            filterByFullName(['csnr-devops-lab-tools/imagestream.image.openshift.io/my-test-app']),
+          ),
+        ),
       });
 
     stubAction
@@ -214,14 +214,14 @@ describe('OpenShiftClientX', function() {
         '--namespace=openshift',
         'get',
         'imagestream.image.openshift.io/python',
-        '--output=json'
+        '--output=json',
       ])
       .returns({
         status: 0,
         stdout: fs.readFileSync(
           `${__dirname}/resources/oc-607be20fff1241a2cd34534dfcadf0add63db2f9.cache.json`,
-          { encoding: 'utf-8' }
-        )
+          { encoding: 'utf-8' },
+        ),
       });
 
     stubAction
@@ -229,14 +229,14 @@ describe('OpenShiftClientX', function() {
         '--namespace=openshift',
         'get',
         'ImageStreamTag/python:2.7',
-        '--output=jsonpath={.image.metadata.name}'
+        '--output=jsonpath={.image.metadata.name}',
       ])
       .returns({
         status: 0,
         stdout: fs.readFileSync(
           `${__dirname}/resources/oc-0c27ba108b45b02184fb3c2d9f17c15e1ebe5eb0.cache.txt`,
-          { encoding: 'utf-8' }
-        )
+          { encoding: 'utf-8' },
+        ),
       });
 
     stubAction
@@ -246,7 +246,7 @@ describe('OpenShiftClientX', function() {
         'env',
         'buildconfig.build.openshift.io/my-test-app-core',
         '--env=_BUILD_HASH=5c797a4d69cd9bebfb03c0fcf8cac94c68648c4b',
-        '--overwrite=true'
+        '--overwrite=true',
       ])
       .returns({ status: 0, stdout: 'not-used' });
 
@@ -257,7 +257,7 @@ describe('OpenShiftClientX', function() {
         'env',
         'buildconfig.build.openshift.io/my-test-app',
         '--env=_BUILD_HASH=bb6a1a5882cc91915f31c620482bacb8070deb3f',
-        '--overwrite=true'
+        '--overwrite=true',
       ])
       .returns({ status: 0, stdout: 'not-used' });
 
@@ -267,7 +267,7 @@ describe('OpenShiftClientX', function() {
         'start-build',
         'buildconfig.build.openshift.io/my-test-app-core',
         '--wait=true',
-        '--output=name'
+        '--output=name',
       ])
       .returns({ status: 0, stdout: 'Build/my-test-app-core-1' });
 
@@ -275,11 +275,11 @@ describe('OpenShiftClientX', function() {
       kind: 'Build',
       metadata: {
         name: 'my-test-app-core-1',
-        namespace: 'csnr-devops-lab-tools'
+        namespace: 'csnr-devops-lab-tools',
       },
       status: {
-        phase: 'Complete'
-      }
+        phase: 'Complete',
+      },
     };
 
     stubAction
@@ -287,7 +287,7 @@ describe('OpenShiftClientX', function() {
         '--namespace=csnr-devops-lab-tools',
         'get',
         'Build/my-test-app-core-1',
-        '--output=json'
+        '--output=json',
       ])
       .returns({ status: 0, stdout: JSON.stringify(build1) });
 
@@ -297,7 +297,7 @@ describe('OpenShiftClientX', function() {
         'start-build',
         'buildconfig.build.openshift.io/my-test-app',
         '--wait=true',
-        '--output=name'
+        '--output=name',
       ])
       .returns({ status: 0, stdout: 'Build/my-test-app-1' });
 
@@ -305,11 +305,11 @@ describe('OpenShiftClientX', function() {
       kind: 'Build',
       metadata: {
         name: 'my-test-app-1',
-        namespace: 'csnr-devops-lab-tools'
+        namespace: 'csnr-devops-lab-tools',
       },
       status: {
-        phase: 'Complete'
-      }
+        phase: 'Complete',
+      },
     };
 
     stubAction
@@ -317,7 +317,7 @@ describe('OpenShiftClientX', function() {
         '--namespace=csnr-devops-lab-tools',
         'get',
         'Build/my-test-app-1',
-        '--output=json'
+        '--output=json',
       ])
       .returns({ status: 0, stdout: JSON.stringify(build2) });
 
@@ -326,14 +326,14 @@ describe('OpenShiftClientX', function() {
         '--namespace=csnr-devops-lab-tools',
         'get',
         'ImageStreamTag/my-test-app-core:latest',
-        '--output=jsonpath={.image.metadata.name}'
+        '--output=jsonpath={.image.metadata.name}',
       ])
       .returns({
         status: 0,
         stdout: fs.readFileSync(
           `${__dirname}/resources/oc-a1d829dffc04a39da661796a53dc512a6ead6033.cache.json`,
-          { encoding: 'utf-8' }
-        )
+          { encoding: 'utf-8' },
+        ),
       });
 
     stubAction
@@ -343,7 +343,7 @@ describe('OpenShiftClientX', function() {
         'env',
         'buildconfig.build.openshift.io/my-test-app-core',
         '--env=_BUILD_HASH=4f9cc34cf9a4194b2f08f11a3cb995d79553a767',
-        '--overwrite=true'
+        '--overwrite=true',
       ])
       .returns({ status: 0, stdout: '' });
 
@@ -354,7 +354,7 @@ describe('OpenShiftClientX', function() {
         'env',
         'buildconfig.build.openshift.io/my-test-app',
         '--env=_BUILD_HASH=04b941ded32c1b82c93b089d5c4bb6f227ea3786',
-        '--overwrite=true'
+        '--overwrite=true',
       ])
       .returns({ status: 0, stdout: '' });
 
@@ -372,12 +372,12 @@ describe('OpenShiftClientX', function() {
       `imagestream.image.openshift.io/${params.NAME}-core`,
       `imagestream.image.openshift.io/${params.NAME}`,
       `buildconfig.build.openshift.io/${params.NAME}-core`,
-      `buildconfig.build.openshift.io/${params.NAME}`
+      `buildconfig.build.openshift.io/${params.NAME}`,
     ]);
     const bc = applyResult.narrow('bc');
     expect(bc.names()).toEqual([
       `buildconfig.build.openshift.io/${params.NAME}-core`,
-      `buildconfig.build.openshift.io/${params.NAME}`
+      `buildconfig.build.openshift.io/${params.NAME}`,
     ]);
 
     await bc.startBuild({ wait: 'true' });
@@ -465,7 +465,7 @@ describe('OpenShiftClientX', function() {
       'env-id': 0,
       'env-name': 'build',
       'github-owner': 'bcdevops',
-      'github-repo': 'pipeline-cli'
+      'github-repo': 'pipeline-cli',
     });
     // eslint-disable-next-line prettier/prettier
     stubAction.withArgs(
@@ -524,7 +524,7 @@ describe('OpenShiftClientX', function() {
       'env-id': 0,
       'env-name': 'dev',
       'github-owner': 'bcdevops',
-      'github-repo': 'pipeline-cli'
+      'github-repo': 'pipeline-cli',
     });
     // eslint-disable-next-line prettier/prettier
     stubAction.withArgs(
@@ -538,7 +538,7 @@ describe('OpenShiftClientX', function() {
 
     // eslint-disable-next-line prettier/prettier
     stubAction.withArgs(
-      ['--namespace=csnr-devops-lab-tools', 'get', 'dc', '--selector=app=my-test-app-0', '--output=jsonpath={range .items[*]}{.metadata.name}{"\\t"}{.spec.replicas}{"\\t"}{.status.latestVersion}{"\\n"}{end}'] // eslint-disable-line prettier/prettier,max-len
+      ['--namespace=csnr-devops-lab-tools', 'get', 'dc', '--selector=app=my-test-app-0', '--output=template={{range .items}}{{.metadata.name}}{{"\\t"}}{{.spec.replicas}}{{"\\t"}}{{.status.latestVersion}}{{"\\n"}}{{end}}'] // eslint-disable-line prettier/prettier,max-len
     ) // eslint-disable-line prettier/prettier,max-len,indent
     .onFirstCall().returns({ status: 0, stdout: 'my-test-app-0\t1\t1' }) // eslint-disable-line prettier/prettier,max-len,indent
     .returns({ status: 0, stdout: 'my-test-app-0\t1\t2' }); // eslint-disable-line prettier/prettier,max-len,indent,newline-per-chained-call
